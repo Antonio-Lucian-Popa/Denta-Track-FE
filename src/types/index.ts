@@ -96,9 +96,11 @@ export enum AppointmentStatus {
 export interface Appointment {
   id: string;
   clinicId: string;
+  userId: string;
   dateTime: string;
   durationMinutes: number;
   patientName: string;
+  patientPhone: string;
   reason: string;
   status: AppointmentStatus;
 }

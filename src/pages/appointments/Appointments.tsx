@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { format, parse, isToday, isThisWeek, isSameDay, startOfMonth, endOfMonth } from 'date-fns';
+import { format, isToday, isThisWeek, isSameDay, startOfMonth, endOfMonth } from 'date-fns';
 import { CalendarDays, ListFilter, Plus, Search, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -99,29 +100,24 @@ const Appointments: React.FC = () => {
       const today = new Date();
 
       if (periodFilter === 'today') {
-        result = result.filter(
-          appointment => isToday(new Date(`${appointment.date}T${appointment.time}`))
+        result = result.filter(appointment =>
+          isToday(new Date(appointment.dateTime))
         );
       } else if (periodFilter === 'week') {
-        result = result.filter(
-          appointment => isThisWeek(new Date(`${appointment.date}T${appointment.time}`))
+        result = result.filter(appointment =>
+          isThisWeek(new Date(appointment.dateTime))
         );
       } else if (periodFilter === 'month') {
         const startMonth = startOfMonth(today);
         const endMonth = endOfMonth(today);
 
         result = result.filter(appointment => {
-          const appDate = new Date(`${appointment.date}T${appointment.time}`);
+          const appDate = new Date(appointment.dateTime);
           return appDate >= startMonth && appDate <= endMonth;
         });
       }
-    }
 
-    // Calendar date filter (for calendar view)
-    const dateFilteredAppointments = result.filter(appointment => {
-      const appDate = parse(appointment.date, 'yyyy-MM-dd', new Date());
-      return isSameDay(appDate, selectedDate);
-    });
+    }
 
     setFilteredAppointments(result);
   }, [appointments, searchQuery, statusFilter, periodFilter, selectedDate]);
@@ -134,15 +130,12 @@ const Appointments: React.FC = () => {
       setIsSubmitting(true);
 
       const appointmentData = {
+        clinicId,
+        dateTime: `${format(data.date, 'yyyy-MM-dd')}T${data.time}`,
+        durationMinutes: data.duration,
         patientName: data.patientName,
         patientPhone: data.patientPhone,
-        date: format(data.date, 'yyyy-MM-dd'),
-        time: data.time,
-        duration: data.duration,
-        notes: data.notes || '',
-        clinicId,
-        doctorId: user.id, // Assuming current user is the doctor
-        status: AppointmentStatus.SCHEDULED
+        reason: data.notes || ''
       };
 
       await createAppointment(appointmentData);
@@ -157,24 +150,12 @@ const Appointments: React.FC = () => {
     }
   };
 
+
   // Handle status update
   const handleStatusUpdate = () => {
     fetchAppointments();
   };
 
-  // Get calendar day class
-  const getDayClass = (date: Date) => {
-    const hasAppointment = appointments.some(appointment => {
-      const appDate = parse(appointment.date, 'yyyy-MM-dd', new Date());
-      return isSameDay(appDate, date);
-    });
-
-    if (hasAppointment) {
-      return "bg-primary/10 text-primary font-bold";
-    }
-
-    return "";
-  };
 
   return (
     <div className="space-y-6">
@@ -310,8 +291,8 @@ const Appointments: React.FC = () => {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {filteredAppointments
                 .sort((a, b) => {
-                  const dateA = new Date(`${a.date}T${a.time}`);
-                  const dateB = new Date(`${b.date}T${b.time}`);
+                  const dateA = new Date(a.dateTime);
+                  const dateB = new Date(b.dateTime);
                   return dateA.getTime() - dateB.getTime();
                 })
                 .map(appointment => (
@@ -342,17 +323,15 @@ const Appointments: React.FC = () => {
                   className="mx-auto"
                   modifiersClassNames={{
                     selected: "bg-primary text-primary-foreground",
+                    appointment: "font-bold border-b-2 border-primary"
                   }}
                   modifiers={{
                     appointment: (date) => {
                       return appointments.some(appointment => {
-                        const appDate = parse(appointment.date, 'yyyy-MM-dd', new Date());
+                        const appDate = new Date(appointment.dateTime);
                         return isSameDay(appDate, date);
                       });
                     }
-                  }}
-                  styles={{
-                    day_appointment: { fontWeight: 'bold', borderBottom: '2px solid currentColor' }
                   }}
                 />
               </CardContent>
@@ -374,11 +353,13 @@ const Appointments: React.FC = () => {
                 <div className="max-h-[400px] overflow-y-auto pr-2">
                   {filteredAppointments
                     .filter(appointment => {
-                      const appDate = parse(appointment.date, 'yyyy-MM-dd', new Date());
+                      const appDate = new Date(appointment.dateTime);
                       return isSameDay(appDate, selectedDate);
                     })
                     .sort((a, b) => {
-                      return a.time.localeCompare(b.time);
+                      const dateA = new Date(a.dateTime);
+                      const dateB = new Date(b.dateTime);
+                      return dateA.getTime() - dateB.getTime();
                     })
                     .map(appointment => (
                       <div
@@ -402,32 +383,32 @@ const Appointments: React.FC = () => {
                         </div>
                         <div className="text-sm text-muted-foreground">
                           <div>
-                            Time: {format(parse(appointment.time, 'HH:mm', new Date()), 'h:mm a')}
+                            Time: {format(new Date(appointment.dateTime), 'h:mm a')}
                             <span className="ml-1 text-xs">
-                              ({appointment.duration} min)
+                              ({appointment.durationMinutes} min)
                             </span>
                           </div>
                           <div>Phone: {appointment.patientPhone}</div>
-                          {appointment.notes && <div>Notes: {appointment.notes}</div>}
+                          {appointment.reason && <div>Notes: {appointment.reason}</div>}
                         </div>
                         <div className="mt-2 flex justify-end space-x-2">
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => {
-                              // Open the card in the list view for more options
-                              document.querySelector('[value="list"]')?.click();
+                              (document.querySelector('[value="list"]') as HTMLElement)?.click();
                             }}
                           >
                             Details
                           </Button>
+
                         </div>
                       </div>
                     ))
                   }
 
                   {filteredAppointments.filter(appointment => {
-                    const appDate = parse(appointment.date, 'yyyy-MM-dd', new Date());
+                    const appDate = new Date(appointment.dateTime);
                     return isSameDay(appDate, selectedDate);
                   }).length === 0 && (
                       <div className="flex h-40 flex-col items-center justify-center text-center">
