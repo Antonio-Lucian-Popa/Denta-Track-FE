@@ -39,7 +39,7 @@ import { Badge } from '@/components/ui/badge';
 const Appointments: React.FC = () => {
   const { clinicId } = useParams<{ clinicId: string }>();
   const { user } = useAuth();
-  
+
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [filteredAppointments, setFilteredAppointments] = useState<Appointment[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -49,11 +49,11 @@ const Appointments: React.FC = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Fetch appointments
   const fetchAppointments = async () => {
     if (!clinicId) return;
-    
+
     try {
       setIsLoading(true);
       const data = await getClinicAppointments(clinicId);
@@ -66,38 +66,38 @@ const Appointments: React.FC = () => {
       setIsLoading(false);
     }
   };
-  
+
   useEffect(() => {
     fetchAppointments();
   }, [clinicId]);
-  
+
   // Apply filters
   useEffect(() => {
     if (!appointments.length) {
       setFilteredAppointments([]);
       return;
     }
-    
+
     let result = [...appointments];
-    
+
     // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(
         appointment => appointment.patientName.toLowerCase().includes(query) ||
-                    appointment.patientPhone.includes(query)
+          appointment.patientPhone.includes(query)
       );
     }
-    
+
     // Status filter
     if (statusFilter) {
       result = result.filter(appointment => appointment.status === statusFilter);
     }
-    
+
     // Period filter
     if (periodFilter !== 'all') {
       const today = new Date();
-      
+
       if (periodFilter === 'today') {
         result = result.filter(
           appointment => isToday(new Date(`${appointment.date}T${appointment.time}`))
@@ -109,30 +109,30 @@ const Appointments: React.FC = () => {
       } else if (periodFilter === 'month') {
         const startMonth = startOfMonth(today);
         const endMonth = endOfMonth(today);
-        
+
         result = result.filter(appointment => {
           const appDate = new Date(`${appointment.date}T${appointment.time}`);
           return appDate >= startMonth && appDate <= endMonth;
         });
       }
     }
-    
+
     // Calendar date filter (for calendar view)
     const dateFilteredAppointments = result.filter(appointment => {
       const appDate = parse(appointment.date, 'yyyy-MM-dd', new Date());
       return isSameDay(appDate, selectedDate);
     });
-    
+
     setFilteredAppointments(result);
   }, [appointments, searchQuery, statusFilter, periodFilter, selectedDate]);
-  
+
   // Handle create appointment
   const handleCreateAppointment = async (data: any) => {
     if (!clinicId || !user) return;
-    
+
     try {
       setIsSubmitting(true);
-      
+
       const appointmentData = {
         patientName: data.patientName,
         patientPhone: data.patientPhone,
@@ -144,7 +144,7 @@ const Appointments: React.FC = () => {
         doctorId: user.id, // Assuming current user is the doctor
         status: AppointmentStatus.SCHEDULED
       };
-      
+
       await createAppointment(appointmentData);
       toast.success('Appointment scheduled successfully');
       setShowAddDialog(false);
@@ -156,23 +156,23 @@ const Appointments: React.FC = () => {
       setIsSubmitting(false);
     }
   };
-  
+
   // Handle status update
   const handleStatusUpdate = () => {
     fetchAppointments();
   };
-  
+
   // Get calendar day class
   const getDayClass = (date: Date) => {
     const hasAppointment = appointments.some(appointment => {
       const appDate = parse(appointment.date, 'yyyy-MM-dd', new Date());
       return isSameDay(appDate, date);
     });
-    
+
     if (hasAppointment) {
       return "bg-primary/10 text-primary font-bold";
     }
-    
+
     return "";
   };
 
@@ -180,7 +180,7 @@ const Appointments: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <h1 className="text-2xl font-bold">Appointments</h1>
-        
+
         <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
           <DialogTrigger asChild>
             <Button>
@@ -196,15 +196,15 @@ const Appointments: React.FC = () => {
               </DialogDescription>
             </DialogHeader>
             <div className="py-4">
-              <AppointmentForm 
-                onSubmit={handleCreateAppointment} 
+              <AppointmentForm
+                onSubmit={handleCreateAppointment}
                 isSubmitting={isSubmitting}
               />
             </div>
           </DialogContent>
         </Dialog>
       </div>
-      
+
       {/* Filters */}
       <div className="flex flex-col gap-4 md:flex-row">
         <div className="relative flex-1">
@@ -216,20 +216,24 @@ const Appointments: React.FC = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        
+
         <div className="grid grid-cols-2 gap-2 md:flex md:w-auto">
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select
+            value={statusFilter}
+            onValueChange={(val) => setStatusFilter(val === '__all__' ? '' : val)}
+          >
             <SelectTrigger className="w-full md:w-[180px]">
               <SelectValue placeholder="All Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Status</SelectItem>
+              <SelectItem value="__all__">All Status</SelectItem>
               <SelectItem value={AppointmentStatus.SCHEDULED}>Scheduled</SelectItem>
               <SelectItem value={AppointmentStatus.COMPLETED}>Completed</SelectItem>
               <SelectItem value={AppointmentStatus.CANCELED}>Canceled</SelectItem>
             </SelectContent>
           </Select>
-          
+
+
           <Select value={periodFilter} onValueChange={setPeriodFilter}>
             <SelectTrigger className="w-full md:w-[180px]">
               <SelectValue placeholder="All Time" />
@@ -243,7 +247,7 @@ const Appointments: React.FC = () => {
           </Select>
         </div>
       </div>
-      
+
       {/* Statistics */}
       <div className="flex flex-wrap gap-2">
         <Badge variant="outline" className="text-sm">
@@ -259,7 +263,7 @@ const Appointments: React.FC = () => {
           Canceled: {appointments.filter(a => a.status === AppointmentStatus.CANCELED).length}
         </Badge>
       </div>
-      
+
       {/* View Options */}
       <Tabs defaultValue="list">
         <div className="flex justify-between">
@@ -274,7 +278,7 @@ const Appointments: React.FC = () => {
             </TabsTrigger>
           </TabsList>
         </div>
-        
+
         {/* List View */}
         <TabsContent value="list" className="mt-6">
           {isLoading ? (
@@ -292,8 +296,8 @@ const Appointments: React.FC = () => {
                   : "Schedule your first appointment to get started"}
               </p>
               {!searchQuery && !statusFilter && periodFilter === 'all' && (
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="mt-4"
                   onClick={() => setShowAddDialog(true)}
                 >
@@ -321,7 +325,7 @@ const Appointments: React.FC = () => {
             </div>
           )}
         </TabsContent>
-        
+
         {/* Calendar View */}
         <TabsContent value="calendar" className="mt-6">
           <div className="grid gap-4 md:grid-cols-2">
@@ -353,7 +357,7 @@ const Appointments: React.FC = () => {
                 />
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader>
                 <CardTitle>
@@ -377,20 +381,20 @@ const Appointments: React.FC = () => {
                       return a.time.localeCompare(b.time);
                     })
                     .map(appointment => (
-                      <div 
-                        key={appointment.id} 
+                      <div
+                        key={appointment.id}
                         className="mb-3 rounded-md border p-3"
                       >
                         <div className="mb-1 flex items-center justify-between">
                           <h3 className="font-medium">{appointment.patientName}</h3>
                           <Badge
-                            variant="outline" 
+                            variant="outline"
                             className={
                               appointment.status === AppointmentStatus.SCHEDULED
                                 ? "bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100"
                                 : appointment.status === AppointmentStatus.COMPLETED
-                                ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
-                                : "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100"
+                                  ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
+                                  : "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100"
                             }
                           >
                             {appointment.status}
@@ -398,7 +402,7 @@ const Appointments: React.FC = () => {
                         </div>
                         <div className="text-sm text-muted-foreground">
                           <div>
-                            Time: {format(parse(appointment.time, 'HH:mm', new Date()), 'h:mm a')} 
+                            Time: {format(parse(appointment.time, 'HH:mm', new Date()), 'h:mm a')}
                             <span className="ml-1 text-xs">
                               ({appointment.duration} min)
                             </span>
@@ -421,24 +425,24 @@ const Appointments: React.FC = () => {
                       </div>
                     ))
                   }
-                  
+
                   {filteredAppointments.filter(appointment => {
                     const appDate = parse(appointment.date, 'yyyy-MM-dd', new Date());
                     return isSameDay(appDate, selectedDate);
                   }).length === 0 && (
-                    <div className="flex h-40 flex-col items-center justify-center text-center">
-                      <p className="text-muted-foreground">No appointments for this day</p>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="mt-2"
-                        onClick={() => setShowAddDialog(true)}
-                      >
-                        <Plus className="mr-2 h-4 w-4" />
-                        Add
-                      </Button>
-                    </div>
-                  )}
+                      <div className="flex h-40 flex-col items-center justify-center text-center">
+                        <p className="text-muted-foreground">No appointments for this day</p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="mt-2"
+                          onClick={() => setShowAddDialog(true)}
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          Add
+                        </Button>
+                      </div>
+                    )}
                 </div>
               </CardContent>
             </Card>
