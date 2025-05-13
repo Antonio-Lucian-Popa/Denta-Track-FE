@@ -19,6 +19,12 @@ export interface AuthResponse {
   refreshToken?: string;
 }
 
+export interface TokenResponse {
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;
+}
+
 export enum UserRole {
   ADMIN = 'ADMIN',
   DOCTOR = 'DOCTOR',

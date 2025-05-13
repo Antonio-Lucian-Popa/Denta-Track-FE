@@ -1,9 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { API_URL } from '@/utils/constants';
 import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import { toast } from 'sonner';
+import { refreshToken } from './authService';
 
 // Create axios instance
 const api = axios.create({
-  baseURL: '/api/v1',
+  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   }
@@ -12,7 +16,7 @@ const api = axios.create({
 // Request interceptor for adding the auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -21,29 +25,38 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor for error handling
+// Add response interceptor to handle token expiration
 api.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
-    // Handle 401 Unauthorized
-    if (error.response?.status === 401) {
-      // Force logout if the token is invalid
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      window.location.href = '/login';
-      toast.error('Session expired. Please log in again.');
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Evită bucla infinită
+    if (originalRequest.url.includes('/auth/refresh')) {
+      return Promise.reject(error);
     }
 
-    // Handle other errors
-    const errorMessage = error.response?.data?.message || 'Something went wrong';
-    if (error.response?.status !== 401) {
-      toast.error(errorMessage);
+    // Dacă e 401 și nu s-a mai retrimis
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        const refreshed = await refreshToken();
+
+        if (refreshed) {
+          originalRequest.headers.Authorization = `Bearer ${refreshed.access_token}`;
+          return api(originalRequest);
+        }
+      } catch (refreshError) {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        window.location.href = '/dentatrack-fe/login';
+      }
     }
 
     return Promise.reject(error);
   }
 );
-
 // Generic GET request
 export const get = async <T>(url: string, config?: AxiosRequestConfig): Promise<T> => {
   const response: AxiosResponse<T> = await api.get(url, config);
