@@ -60,6 +60,8 @@ const Dashboard: React.FC = () => {
       };
 
       fetchDashboardData();
+    } else {
+      setLoading(false);
     }
   }, [clinicId, activeClinic]);
 

@@ -38,7 +38,7 @@ const Products: React.FC = () => {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [stockFilter, setStockFilter] = useState('');
   const [showAddDialog, setShowAddDialog] = useState(false);
-  
+
   // Fetch products
   const fetchProducts = async () => {
     if (clinicId && activeClinic?.id === clinicId) {
@@ -55,48 +55,48 @@ const Products: React.FC = () => {
       }
     }
   };
-  
+
   useEffect(() => {
     fetchProducts();
   }, [clinicId, activeClinic]);
-  
+
   // Apply filters
   useEffect(() => {
     let result = [...products];
-    
+
     // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(
-        product => product.name.toLowerCase().includes(query) || 
-                  product.category.toLowerCase().includes(query)
+        product => product.name.toLowerCase().includes(query) ||
+          product.category.toLowerCase().includes(query)
       );
     }
-    
+
     // Category filter
     if (categoryFilter) {
       result = result.filter(product => product.category === categoryFilter);
     }
-    
+
     // Stock status filter
     if (stockFilter === 'low') {
       result = result.filter(product => product.isLowStock);
     } else if (stockFilter === 'expired') {
-      result = result.filter(product => 
+      result = result.filter(product =>
         product.expiryDate && new Date(product.expiryDate) < new Date()
       );
     }
-    
+
     setFilteredProducts(result);
   }, [products, searchQuery, categoryFilter, stockFilter]);
-  
+
   // Extract unique categories
   const categories = Array.from(new Set(products.map(p => p.category)));
-  
+
   // Handle create product
   const handleCreateProduct = async (data: any) => {
     if (!clinicId) return;
-    
+
     try {
       setIsSubmitting(true);
       await createProduct({
@@ -113,7 +113,7 @@ const Products: React.FC = () => {
       setIsSubmitting(false);
     }
   };
-  
+
   const handleStockUpdate = () => {
     fetchProducts();
   };
@@ -122,7 +122,7 @@ const Products: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <h1 className="text-2xl font-bold">Products</h1>
-        
+
         <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
           <DialogTrigger asChild>
             <Button>
@@ -138,15 +138,15 @@ const Products: React.FC = () => {
               </DialogDescription>
             </DialogHeader>
             <div className="py-4">
-              <ProductForm 
-                onSubmit={handleCreateProduct} 
+              <ProductForm
+                onSubmit={handleCreateProduct}
                 isSubmitting={isSubmitting}
               />
             </div>
           </DialogContent>
         </Dialog>
       </div>
-      
+
       {/* Filters */}
       <div className="flex flex-col gap-4 md:flex-row">
         <div className="relative flex-1">
@@ -158,14 +158,14 @@ const Products: React.FC = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        
+
         <div className="grid grid-cols-2 gap-2 md:flex md:w-auto">
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <Select value={categoryFilter} onValueChange={(val) => setCategoryFilter(val === '__all__' ? '' : val)}>
             <SelectTrigger className="w-full md:w-[180px]">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Categories</SelectItem>
+              <SelectItem value="__all__">All Categories</SelectItem>
               {categories.map((category) => (
                 <SelectItem key={category} value={category}>
                   {category}
@@ -173,20 +173,22 @@ const Products: React.FC = () => {
               ))}
             </SelectContent>
           </Select>
-          
-          <Select value={stockFilter} onValueChange={setStockFilter}>
+
+
+          <Select value={stockFilter} onValueChange={(val) => setStockFilter(val === '__all__' ? '' : val)}>
             <SelectTrigger className="w-full md:w-[180px]">
               <SelectValue placeholder="Stock Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Status</SelectItem>
+              <SelectItem value="__all__">All Status</SelectItem>
               <SelectItem value="low">Low Stock</SelectItem>
               <SelectItem value="expired">Expired</SelectItem>
             </SelectContent>
           </Select>
+
         </div>
       </div>
-      
+
       {/* Statistics */}
       <div className="flex flex-wrap gap-2">
         <Badge variant="outline" className="text-sm">
@@ -199,7 +201,7 @@ const Products: React.FC = () => {
           Expired: {products.filter(p => p.expiryDate && new Date(p.expiryDate) < new Date()).length}
         </Badge>
       </div>
-      
+
       {/* Products Grid */}
       <Tabs defaultValue="grid">
         <div className="flex justify-between">
@@ -207,7 +209,7 @@ const Products: React.FC = () => {
             <TabsTrigger value="grid">Grid View</TabsTrigger>
             <TabsTrigger value="list">List View</TabsTrigger>
           </TabsList>
-          
+
           <div className="flex items-center">
             <Filter className="mr-2 h-4 w-4 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">
@@ -215,7 +217,7 @@ const Products: React.FC = () => {
             </span>
           </div>
         </div>
-        
+
         <TabsContent value="grid" className="mt-6">
           {isLoading ? (
             <div className="flex h-40 items-center justify-center">
@@ -230,8 +232,8 @@ const Products: React.FC = () => {
                   : "Add your first product to get started"}
               </p>
               {!searchQuery && !categoryFilter && !stockFilter && (
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="mt-4"
                   onClick={() => setShowAddDialog(true)}
                 >
@@ -243,16 +245,16 @@ const Products: React.FC = () => {
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {filteredProducts.map((product) => (
-                <ProductCard 
-                  key={product.id} 
-                  product={product} 
+                <ProductCard
+                  key={product.id}
+                  product={product}
                   onStockUpdate={handleStockUpdate}
                 />
               ))}
             </div>
           )}
         </TabsContent>
-        
+
         <TabsContent value="list" className="mt-6">
           {isLoading ? (
             <div className="flex h-40 items-center justify-center">
@@ -267,8 +269,8 @@ const Products: React.FC = () => {
                   : "Add your first product to get started"}
               </p>
               {!searchQuery && !categoryFilter && !stockFilter && (
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="mt-4"
                   onClick={() => setShowAddDialog(true)}
                 >
@@ -286,13 +288,12 @@ const Products: React.FC = () => {
                 <div className="col-span-2 text-center">Min. Stock</div>
                 <div className="col-span-1 text-center">Actions</div>
               </div>
-              
+
               {filteredProducts.map((product) => (
-                <div 
-                  key={product.id} 
-                  className={`grid grid-cols-12 items-center border-b p-3 ${
-                    product.isLowStock ? 'bg-amber-50 dark:bg-amber-950/20' : ''
-                  }`}
+                <div
+                  key={product.id}
+                  className={`grid grid-cols-12 items-center border-b p-3 ${product.isLowStock ? 'bg-amber-50 dark:bg-amber-950/20' : ''
+                    }`}
                 >
                   <div className="col-span-5 font-medium">
                     {product.name}
