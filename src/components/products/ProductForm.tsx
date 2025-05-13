@@ -54,7 +54,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface ProductFormProps {
-  onSubmit: (data: FormValues) => Promise<void>;
+  onSubmit: (data: Product) => Promise<void>;
   defaultValues?: Partial<Product>;
   isSubmitting?: boolean;
 }
@@ -71,17 +71,31 @@ const ProductForm: React.FC<ProductFormProps> = ({
     defaultValues: {
       name: defaultValues?.name || '',
       category: defaultValues?.category || '',
-      currentStock: defaultValues?.currentStock || 0,
-      minimumStock: defaultValues?.minimumStock || 0,
-      expiryDate: defaultValues?.expiryDate ? new Date(defaultValues.expiryDate) : undefined
-    }
+      currentStock: defaultValues?.quantity ?? 0,
+      minimumStock: defaultValues?.lowStockThreshold ?? 0,
+      expiryDate: defaultValues?.expirationDate
+        ? new Date(defaultValues.expirationDate)
+        : undefined,
+    },
   });
   
-  const handleSubmit = async (data: FormValues) => {
-    if (activeClinic) {
-      await onSubmit(data);
-      form.reset();
-    }
+
+  const handleSubmit = async (values: FormValues) => {
+    if (!activeClinic) return;
+  
+    const productPayload: Product = {
+      id: defaultValues?.id || '', // sau omit dacă faci `create`
+      name: values.name,
+      category: values.category,
+      unit: 'buc', // dacă ai valoare default
+      quantity: values.currentStock,
+      lowStockThreshold: values.minimumStock,
+      expirationDate: values.expiryDate?.toISOString(),
+      clinicId: activeClinic.id,
+    };
+  
+    await onSubmit(productPayload); // sau trimite către backend
+    form.reset();
   };
 
   return (

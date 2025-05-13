@@ -52,8 +52,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onStockUpdate }) => 
   const [quantity, setQuantity] = useState(1);
   const [reason, setReason] = useState('');
   
-  const hasExpired = product.expiryDate 
-    ? new Date(product.expiryDate) < new Date() 
+  const hasExpired = product.expirationDate 
+    ? new Date(product.expirationDate) < new Date() 
     : false;
   
   const handleStockUpdate = async () => {
@@ -70,7 +70,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onStockUpdate }) => 
     try {
       setIsUpdating(true);
       await updateProductStock(product.id, {
-        action: stockAction,
+        actionType: stockAction,
         quantity,
         reason
       });
@@ -103,7 +103,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onStockUpdate }) => 
           </div>
           <Badge variant={product.isLowStock ? "destructive" : "outline"} className="h-fit">
             <Package className="mr-1 h-3 w-3" /> 
-            {product.currentStock} in stock
+            {product.quantity} in stock
           </Badge>
         </div>
       </CardHeader>
@@ -112,16 +112,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onStockUpdate }) => 
         <div className="flex flex-col space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Minimum Stock:</span>
-            <span className="font-medium">{product.minimumStock}</span>
+            <span className="font-medium">{product.lowStockThreshold}</span>
           </div>
           
-          {product.expiryDate && (
+          {product.expirationDate && (
             <div className="flex items-center justify-between text-sm">
               <span className="flex items-center text-muted-foreground">
                 <Calendar className="mr-1 h-3 w-3" /> Expires:
               </span>
               <span className={`font-medium ${hasExpired ? 'text-destructive' : ''}`}>
-                {format(new Date(product.expiryDate), 'MMM d, yyyy')}
+                {format(new Date(product.expirationDate), 'MMM d, yyyy')}
                 {hasExpired && <AlertCircle className="ml-1 h-3 w-3 inline" />}
               </span>
             </div>
@@ -181,7 +181,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onStockUpdate }) => 
                   value={quantity}
                   onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
                   min={1}
-                  max={stockAction === StockAction.OUT ? product.currentStock : undefined}
+                  max={stockAction === StockAction.OUT ? product.quantity : undefined}
                   disabled={isUpdating}
                   className="col-span-3"
                 />
@@ -212,7 +212,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onStockUpdate }) => 
               </Button>
               <Button 
                 onClick={handleStockUpdate}
-                disabled={isUpdating || quantity <= 0 || !reason.trim() || (stockAction === StockAction.OUT && quantity > product.currentStock)}
+                disabled={isUpdating || quantity <= 0 || !reason.trim() || (stockAction === StockAction.OUT && quantity > product.quantity)}
               >
                 {isUpdating ? (
                   <>
