@@ -4,6 +4,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [react()],
+  base: '/dentatrack-fe/', // Set your base path here
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
