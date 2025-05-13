@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -5,10 +6,28 @@ import { useClinic } from '@/contexts/ClinicContext';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import { Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const MainLayout: React.FC = () => {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const { activeClinic, isLoading: clinicLoading } = useClinic();
+  const { clinics, activeClinic, hasFetchedClinics, isLoading: clinicLoading } = useClinic();
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (
+      !clinicLoading &&
+      !authLoading &&
+      hasFetchedClinics &&
+      clinics.length === 0 &&
+      !activeClinic
+    ) {
+      navigate('/create-clinic', { replace: true });
+    }
+  }, [clinicLoading, authLoading, hasFetchedClinics, clinics, activeClinic, navigate]);
+  
+
   
   // Show loading state while checking authentication
   if (authLoading) {
@@ -34,16 +53,11 @@ const MainLayout: React.FC = () => {
       </div>
     );
   }
-  
-  // If authenticated but no clinic, redirect to create clinic
-  if (!activeClinic) {
-    return <Navigate to="/create-clinic" replace />;
-  }
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background">
       {/* Sidebar */}
-      <Sidebar />
+      <Sidebar variant="desktop"/>
       
       {/* Main content */}
       <div className="flex flex-1 flex-col overflow-hidden">

@@ -53,7 +53,7 @@ const Header: React.FC = () => {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="p-0">
-            <Sidebar />
+            <Sidebar variant="mobile" />
           </SheetContent>
         </Sheet>
 

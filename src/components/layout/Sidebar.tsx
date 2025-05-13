@@ -11,14 +11,18 @@ interface SidebarItemProps {
   active: boolean;
 }
 
+interface SidebarProps {
+  variant?: 'mobile' | 'desktop';
+}
+
 const SidebarItem: React.FC<SidebarItemProps> = ({ icon, label, to, active }) => {
   return (
-    <Link 
-      to={to} 
+    <Link
+      to={to}
       className={cn(
         "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-        active 
-          ? "bg-accent text-accent-foreground" 
+        active
+          ? "bg-accent text-accent-foreground"
           : "text-muted-foreground hover:bg-muted hover:text-foreground"
       )}
     >
@@ -28,13 +32,13 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon, label, to, active }) =>
   );
 };
 
-const Sidebar: React.FC = () => {
+const Sidebar: React.FC<SidebarProps> = ({ variant = 'desktop' }) => {
   const location = useLocation();
   const { activeClinic } = useClinic();
-  
+
   const clinicId = activeClinic?.id;
   const isActive = (path: string) => location.pathname.includes(path);
-  
+
   const sidebarItems = [
     {
       icon: <LayoutDashboard className="h-5 w-5" />,
@@ -75,7 +79,10 @@ const Sidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="flex h-full w-64 flex-col border-r border-border bg-card">
+    <aside className={cn(
+      "h-full w-64 flex-col border-r border-border bg-card",
+      variant === 'desktop' ? "hidden md:flex" : "flex"
+    )}>
       {/* Logo */}
       <div className="flex h-14 items-center border-b border-border px-4">
         <Link to="/" className="flex items-center gap-2 font-semibold text-foreground">
@@ -83,7 +90,7 @@ const Sidebar: React.FC = () => {
           <span className="text-xl font-bold">DentaTrack</span>
         </Link>
       </div>
-      
+
       {/* Navigation */}
       <nav className="flex-1 space-y-1 px-2 py-4">
         {sidebarItems.map((item, index) => (
@@ -96,7 +103,7 @@ const Sidebar: React.FC = () => {
           />
         ))}
       </nav>
-      
+
       {/* Footer */}
       <div className="border-t border-border p-4">
         <div className="text-xs text-muted-foreground">

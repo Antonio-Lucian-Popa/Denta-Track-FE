@@ -16,7 +16,7 @@ import Users from '@/pages/users/Users';
 function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="dentatrack-theme">
-      <BrowserRouter>
+      <BrowserRouter basename={'/dentatrack-fe'}>
         <AuthProvider>
           <ClinicProvider>
             <Routes>
