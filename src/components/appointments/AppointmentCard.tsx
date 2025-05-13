@@ -1,14 +1,14 @@
 import React from 'react';
 import { format } from 'date-fns';
 import { Clock, Calendar, User, Phone, FileText, Loader2 } from 'lucide-react';
-import { 
-  Card, 
-  CardContent, 
-  CardFooter, 
-  CardHeader, 
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { 
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -31,23 +31,23 @@ interface AppointmentCardProps {
   onStatusUpdate: () => void;
 }
 
-const AppointmentCard: React.FC<AppointmentCardProps> = ({ 
-  appointment, 
-  onStatusUpdate 
+const AppointmentCard: React.FC<AppointmentCardProps> = ({
+  appointment,
+  onStatusUpdate
 }) => {
   const [isUpdating, setIsUpdating] = React.useState(false);
   const { user } = useAuth();
-  
-  const dateObj = new Date(`${appointment.date}T${appointment.time}`);
-  
+
+  const dateObj = new Date(appointment.dateTime);
+
   const statusColors = {
     [AppointmentStatus.SCHEDULED]: "bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100",
     [AppointmentStatus.COMPLETED]: "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100",
     [AppointmentStatus.CANCELED]: "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100",
   };
-  
+
   const isDoctorOrAdmin = user?.role === UserRole.DOCTOR || user?.role === UserRole.ADMIN;
-  
+
   const handleStatusUpdate = async (newStatus: AppointmentStatus) => {
     try {
       setIsUpdating(true);
@@ -61,7 +61,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
       setIsUpdating(false);
     }
   };
-  
+
   const isPast = dateObj < new Date();
 
   return (
@@ -74,41 +74,46 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
           </Badge>
         </div>
       </CardHeader>
-      
+
       <CardContent className="pb-1">
         <div className="grid gap-2">
           <div className="flex items-center text-sm text-muted-foreground">
             <Calendar className="mr-2 h-4 w-4" />
             <span>{format(dateObj, 'EEEE, MMMM d, yyyy')}</span>
           </div>
-          
+
           <div className="flex items-center text-sm text-muted-foreground">
             <Clock className="mr-2 h-4 w-4" />
             <span>
-              {format(dateObj, 'h:mm a')} - {format(new Date(dateObj.getTime() + appointment.duration * 60000), 'h:mm a')}
-              <span className="ml-1 text-xs">({appointment.duration} min)</span>
+              {format(dateObj, 'h:mm a')} –{' '}
+              {format(
+                new Date(dateObj.getTime() + appointment.durationMinutes * 60000),
+                'h:mm a'
+              )}
+              <span className="ml-1 text-xs">({appointment.durationMinutes} min)</span>
             </span>
           </div>
-          
+
+          {/* Doctor (by userId) */}
           <div className="flex items-center text-sm text-muted-foreground">
             <User className="mr-2 h-4 w-4" />
-            <span>Dr. {appointment.doctorId}</span>
+            <span>Dr. {appointment.userId}</span> {/* sau user lookup */}
           </div>
-          
+
           <div className="flex items-center text-sm text-muted-foreground">
             <Phone className="mr-2 h-4 w-4" />
             <span>{appointment.patientPhone}</span>
           </div>
-          
-          {appointment.notes && (
+
+          {appointment.reason && (
             <div className="mt-2 flex text-sm">
               <FileText className="mr-2 h-4 w-4 text-muted-foreground" />
-              <p className="truncate">{appointment.notes}</p>
+              <p className="truncate">{appointment.reason}</p>
             </div>
           )}
         </div>
       </CardContent>
-      
+
       {appointment.status === AppointmentStatus.SCHEDULED && isDoctorOrAdmin && !isPast && (
         <CardFooter className="grid grid-cols-2 gap-2 pt-2">
           <AlertDialog>
@@ -124,7 +129,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>No, keep it</AlertDialogCancel>
-                <AlertDialogAction 
+                <AlertDialogAction
                   onClick={() => handleStatusUpdate(AppointmentStatus.CANCELED)}
                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 >
@@ -138,8 +143,8 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-          
-          <Button 
+
+          <Button
             onClick={() => handleStatusUpdate(AppointmentStatus.COMPLETED)}
             disabled={isUpdating}
           >

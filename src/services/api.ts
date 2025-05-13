@@ -34,7 +34,7 @@ api.interceptors.response.use(
     const originalRequest = error.config;
 
     // Evită bucla infinită
-    if (originalRequest.url.includes('/auth/refresh')) {
+    if (originalRequest.url.includes('/users/refresh')) {
       return Promise.reject(error);
     }
 
