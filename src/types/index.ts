@@ -77,6 +77,7 @@ export interface InventoryLog {
   reason: string;
   userId: string;
   timestamp: string;
+  userNameOfAction: string;
 }
 
 export interface InventoryLogFilters {
