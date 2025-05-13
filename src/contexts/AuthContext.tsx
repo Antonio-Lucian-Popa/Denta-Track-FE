@@ -45,8 +45,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(true);
       const response = await loginUser(credentials);
       localStorage.setItem('access_token', response.access_token);
-      if (response.refreshToken) {
-        localStorage.setItem('refresh_token', response.refreshToken);
+      if (response.refresh_token) {
+        localStorage.setItem('refresh_token', response.refresh_token);
       }
       const userData = await getCurrentUser();
       setUser(userData);
@@ -63,8 +63,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(true);
       const response = await registerUser(data);
       localStorage.setItem('access_token', response.access_token);
-      if (response.refreshToken) {
-        localStorage.setItem('refresh_token', response.refreshToken);
+      if (response.refresh_token) {
+        localStorage.setItem('refresh_token', response.refresh_token);
       }
       const userData = await getCurrentUser();
       setUser(userData);
