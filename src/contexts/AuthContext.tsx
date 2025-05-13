@@ -24,14 +24,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem('access_token');
       if (token) {
         try {
           const userData = await getCurrentUser();
           setUser(userData);
         } catch (error) {
           console.error('Failed to fetch user data', error);
-          localStorage.removeItem('accessToken');
+          localStorage.removeItem('access_token');
         }
       }
       setIsLoading(false);
@@ -44,9 +44,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
       const response = await loginUser(credentials);
-      localStorage.setItem('accessToken', response.accessToken);
+      localStorage.setItem('access_token', response.access_token);
       if (response.refreshToken) {
-        localStorage.setItem('refreshToken', response.refreshToken);
+        localStorage.setItem('refresh_token', response.refreshToken);
       }
       const userData = await getCurrentUser();
       setUser(userData);
@@ -62,9 +62,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
       const response = await registerUser(data);
-      localStorage.setItem('accessToken', response.accessToken);
+      localStorage.setItem('access_token', response.access_token);
       if (response.refreshToken) {
-        localStorage.setItem('refreshToken', response.refreshToken);
+        localStorage.setItem('refresh_token', response.refreshToken);
       }
       const userData = await getCurrentUser();
       setUser(userData);
@@ -77,8 +77,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
     setUser(null);
   };
 
