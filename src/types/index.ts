@@ -132,13 +132,20 @@ export interface DashboardStats {
 
 // Invitation Types
 export interface Invitation {
+  id: string;
+  token: string;
   clinicId: string;
   role: UserRole;
   doctorId?: string;
+  expiresAt: string;       // ISO string din LocalDateTime
+  used: boolean;
+  createdAt: string;       // ISO string din LocalDateTime
+  email?: string;
 }
 
 export interface InvitationRequest {
   clinicId: string;
   role: UserRole;
   doctorId?: string;
+  email: string;
 }

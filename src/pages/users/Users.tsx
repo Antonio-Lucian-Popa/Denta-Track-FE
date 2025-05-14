@@ -336,7 +336,7 @@ const Users: React.FC = () => {
                   </TableHeader>
                   <TableBody>
                     {invitations.map((invitation) => {
-                      const isExpired = isPast(new Date(invitation.expires));
+                      const isExpired = isPast(new Date(invitation.expiresAt));
 
                       return (
                         <TableRow key={invitation.id}>
@@ -364,7 +364,7 @@ const Users: React.FC = () => {
                             </div>
                           </TableCell>
                           <TableCell>
-                            {format(new Date(invitation.expires), 'MMM d, yyyy')}
+                            {format(new Date(invitation.expiresAt), 'MMM d, yyyy')}
                           </TableCell>
                           <TableCell className="text-right">
                             <Button
