@@ -270,32 +270,6 @@ const Users: React.FC = () => {
           </Card>
         </TabsContent>
 
-        <Dialog open={!!userToRemove} onOpenChange={(open) => !open && setUserToRemove(null)}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Confirm removal</DialogTitle>
-              <DialogDescription>
-                Are you sure you want to remove this user from the clinic? This action cannot be undone.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex justify-end gap-2 pt-4">
-              <Button variant="ghost" onClick={() => setUserToRemove(null)}>
-                Cancel
-              </Button>
-              <Button variant="destructive" onClick={handleRemoveConfirm} disabled={isRemoving}>
-                {isRemoving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Removing...
-                  </>
-                ) : (
-                  "Remove"
-                )}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-
 
         <TabsContent value="invitations" className="mt-6">
           <Card>
@@ -316,12 +290,29 @@ const Users: React.FC = () => {
                   <p className="text-sm text-muted-foreground">
                     Invite team members to collaborate on your clinic
                   </p>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" className="mt-4">
-                      <UserPlus className="mr-2 h-4 w-4" />
-                      Send New Invitation
-                    </Button>
-                  </DialogTrigger>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="mt-4">
+                        <UserPlus className="mr-2 h-4 w-4" />
+                        Send New Invitation
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[550px]">
+                      <DialogHeader>
+                        <DialogTitle>Invite a Team Member</DialogTitle>
+                        <DialogDescription>
+                          Invite a new user to your clinic with specific permissions.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="py-4">
+                        <InvitationForm
+                          onSubmit={handleCreateInvitation}
+                          isSubmitting={isSubmitting}
+                        />
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
                 </div>
               ) : (
                 <Table>
@@ -387,6 +378,33 @@ const Users: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={!!userToRemove} onOpenChange={(open) => !open && setUserToRemove(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm removal</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to remove this user from the clinic? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 pt-4">
+            <Button variant="ghost" onClick={() => setUserToRemove(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleRemoveConfirm} disabled={isRemoving}>
+              {isRemoving ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Removing...
+                </>
+              ) : (
+                "Remove"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 };
