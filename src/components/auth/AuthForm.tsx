@@ -50,7 +50,7 @@ const AuthForm: React.FC = () => {
     if (invitationToken) {
       const checkInvitation = async () => {
         try {
-          const { used, employeeEmail, role, clinicId } = await validateInvitation(invitationToken); 
+          const { used, employeeEmail, role, clinicId, doctorId } = await validateInvitation(invitationToken); 
           if (!used) {
             setIsInvited(true);
             setInvitedEmail(employeeEmail);
@@ -58,6 +58,7 @@ const AuthForm: React.FC = () => {
             registerForm.setValue("role", role);
             setIsRolePredefined(true); // 👈 indicăm că rolul e deja setat
             registerForm.setValue("clinicId", clinicId);
+            registerForm.setValue("doctorId", doctorId);
           }
         } catch (error) {
           console.error('Invalid invitation token', error);
@@ -110,6 +111,8 @@ const AuthForm: React.FC = () => {
         ...data,
         name: `${data.firstName} ${data.lastName}`,
         invitationToken: invitationToken || undefined,
+        clinicId: registerForm.getValues("clinicId"),
+        doctorId: registerForm.getValues("doctorId"),
       };
       await register(registerData);
 

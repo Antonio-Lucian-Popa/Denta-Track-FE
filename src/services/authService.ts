@@ -13,8 +13,8 @@ export const getCurrentUser = async (): Promise<User> => {
   return await get<User>('/users/me');
 };
 
-export const validateInvitation = async (token: string): Promise<{ used: boolean, employeeEmail: string, role: UserRole, clinicId: string }> => {
-  return await get<{ used: boolean, employeeEmail: string, role: UserRole, clinicId: string  }>(`/invitations/validate?token=${token}`);
+export const validateInvitation = async (token: string): Promise<{ used: boolean, employeeEmail: string, role: UserRole, clinicId: string, doctorId: string }> => {
+  return await get<{ used: boolean, employeeEmail: string, role: UserRole, clinicId: string, doctorId: string  }>(`/invitations/validate?token=${token}`);
 };
 
 // Refresh token
