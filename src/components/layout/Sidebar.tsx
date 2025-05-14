@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, ShoppingBag, CalendarClock, ClipboardList, Users, Settings, Bluetooth as Tooth } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useClinic } from '@/contexts/ClinicContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface SidebarItemProps {
   icon: React.ReactNode;
@@ -35,6 +36,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon, label, to, active }) =>
 const Sidebar: React.FC<SidebarProps> = ({ variant = 'desktop' }) => {
   const location = useLocation();
   const { activeClinic } = useClinic();
+  const { user } = useAuth();
 
   const clinicId = activeClinic?.id;
   const isActive = (path: string) => location.pathname.includes(path);
@@ -64,12 +66,15 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'desktop' }) => {
       to: `/clinic/${clinicId}/logs`,
       active: location.pathname.includes('/logs'),
     },
-    {
-      icon: <Users className="h-5 w-5" />,
-      label: 'Users',
-      to: `/clinic/${clinicId}/users`,
-      active: location.pathname.includes('/users'),
-    },
+    // ✅ Include doar pentru non-Assistants:
+    ...(user?.role !== 'ASSISTANT'
+      ? [{
+        icon: <Users className="h-5 w-5" />,
+        label: 'Users',
+        to: `/clinic/${clinicId}/users`,
+        active: location.pathname.includes('/users'),
+      }]
+      : []),
     {
       icon: <Settings className="h-5 w-5" />,
       label: 'Settings',
