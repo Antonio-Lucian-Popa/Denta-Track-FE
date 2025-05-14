@@ -34,7 +34,7 @@ import { useClinic } from '@/contexts/ClinicContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { createInvitation, getClinicInvitations } from '@/services/userService';
-import { UserRole, Invitation } from '@/types';
+import { UserRole, Invitation, User } from '@/types';
 import { format, isPast } from 'date-fns';
 import { getClinicStaff, removeUserFromClinic } from '@/services/clinicService';
 
@@ -134,6 +134,9 @@ const Users: React.FC = () => {
   // ];
 
   const [teamMembers, setTeamMembers] = useState<User[]>([]);
+  const [userToRemove, setUserToRemove] = useState<string | null>(null);
+  const [isRemoving, setIsRemoving] = useState(false);
+
 
 
   const roleColors = {
@@ -153,18 +156,24 @@ const Users: React.FC = () => {
     }
   };
 
-  const handleRemove = async (userId: string) => {
-    if (!clinicId) return;
+  const handleRemoveConfirm = async () => {
+    if (!clinicId || !userToRemove) return;
+
     try {
-      await removeUserFromClinic(clinicId, userId);
+      setIsRemoving(true);
+      await removeUserFromClinic(clinicId, userToRemove);
       toast.success("User removed successfully");
-      fetchStaff(); // Refetch users
+      setUserToRemove(null);
+      fetchStaff(); // Dacă ai funcția asta care face refetch la staff
     } catch (error) {
       console.error("Failed to remove user", error);
       toast.error("Failed to remove user");
+    } finally {
+      setIsRemoving(false);
     }
   };
-  
+
+
 
   return (
     <div className="space-y-6">
@@ -242,13 +251,15 @@ const Users: React.FC = () => {
                       <TableCell>-</TableCell>
                       <TableCell className="text-right">
                         <Button
-                          variant="ghost"
+                          variant="destructive"
                           size="sm"
-                          onClick={() => handleRemove(member.id)}
                           disabled={member.id === user?.id}
+                          onClick={() => setUserToRemove(member.id)}
                         >
                           Remove
                         </Button>
+
+
                       </TableCell>
                     </TableRow>
                   ))}
@@ -258,6 +269,33 @@ const Users: React.FC = () => {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <Dialog open={!!userToRemove} onOpenChange={(open) => !open && setUserToRemove(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm removal</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to remove this user from the clinic? This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="ghost" onClick={() => setUserToRemove(null)}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleRemoveConfirm} disabled={isRemoving}>
+                {isRemoving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Removing...
+                  </>
+                ) : (
+                  "Remove"
+                )}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
 
         <TabsContent value="invitations" className="mt-6">
           <Card>
