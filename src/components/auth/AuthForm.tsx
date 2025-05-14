@@ -39,6 +39,8 @@ const AuthForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isInvited, setIsInvited] = useState(!!invitationToken);
   const [invitedEmail, setInvitedEmail] = useState('');
+  const [isRolePredefined, setIsRolePredefined] = useState(false);
+
   const [activeTab, setActiveTab] = useState(invitationToken ? 'register' : 'login');
   const { login, register } = useAuth();
   const navigate = useNavigate();
@@ -48,10 +50,14 @@ const AuthForm: React.FC = () => {
     if (invitationToken) {
       const checkInvitation = async () => {
         try {
-          const { valid, email } = await validateInvitation(invitationToken);
-          if (valid) {
+          const { used, employeeEmail, role, clinicId } = await validateInvitation(invitationToken); 
+          if (!used) {
             setIsInvited(true);
-            setInvitedEmail(email);
+            setInvitedEmail(employeeEmail);
+            registerForm.setValue("email", employeeEmail);
+            registerForm.setValue("role", role);
+            setIsRolePredefined(true); // 👈 indicăm că rolul e deja setat
+            registerForm.setValue("clinicId", clinicId);
           }
         } catch (error) {
           console.error('Invalid invitation token', error);
@@ -305,7 +311,7 @@ const AuthForm: React.FC = () => {
                   <FormControl>
                     <div className="relative">
                       <UserCog className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground pointer-events-none" />
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={isRolePredefined}>
                         <SelectTrigger className="w-full pl-10">
                           <SelectValue placeholder="Select your role" />
                         </SelectTrigger>

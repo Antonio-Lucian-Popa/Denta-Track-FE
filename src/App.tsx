@@ -22,6 +22,7 @@ function App() {
             <Routes>
               {/* Auth routes */}
               <Route path="/login" element={<Login />} />
+              <Route path="/login/:token" element={<Login />} />
               
               {/* Create clinic route */}
               <Route path="/create-clinic" element={<CreateClinic />} />

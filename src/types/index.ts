@@ -140,12 +140,12 @@ export interface Invitation {
   expiresAt: string;       // ISO string din LocalDateTime
   used: boolean;
   createdAt: string;       // ISO string din LocalDateTime
-  email?: string;
+  employeeEmail: string;
 }
 
 export interface InvitationRequest {
   clinicId: string;
   role: UserRole;
   doctorId?: string;
-  email: string;
+  employeeEmail: string;
 }

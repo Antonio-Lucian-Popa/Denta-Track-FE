@@ -74,7 +74,7 @@ const Users: React.FC = () => {
     try {
       setIsSubmitting(true);
       await createInvitation({
-        email: data.email,
+        employeeEmail: data.email,
         role: data.role,
         clinicId,
         doctorId: user?.id
@@ -333,7 +333,7 @@ const Users: React.FC = () => {
                       return (
                         <TableRow key={invitation.id}>
                           <TableCell className="font-medium">
-                            {invitation.email}
+                            {invitation.employeeEmail}
                           </TableCell>
                           <TableCell>
                             <Badge className={roleColors[invitation.role]}>

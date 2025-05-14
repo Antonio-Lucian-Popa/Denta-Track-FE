@@ -1,5 +1,5 @@
 import { post, get } from './api';
-import { AuthResponse, LoginCredentials, RegisterData, TokenResponse, User } from '@/types';
+import { AuthResponse, LoginCredentials, RegisterData, TokenResponse, User, UserRole } from '@/types';
 
 export const loginUser = async (credentials: LoginCredentials): Promise<AuthResponse> => {
   return await post<AuthResponse>('/users/login', credentials);
@@ -13,8 +13,8 @@ export const getCurrentUser = async (): Promise<User> => {
   return await get<User>('/users/me');
 };
 
-export const validateInvitation = async (token: string): Promise<{ valid: boolean, email: string }> => {
-  return await get<{ valid: boolean, email: string }>(`/invitations/validate?token=${token}`);
+export const validateInvitation = async (token: string): Promise<{ used: boolean, employeeEmail: string, role: UserRole, clinicId: string }> => {
+  return await get<{ used: boolean, employeeEmail: string, role: UserRole, clinicId: string  }>(`/invitations/validate?token=${token}`);
 };
 
 // Refresh token
