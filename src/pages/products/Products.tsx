@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Plus, Search, Filter, Loader2 } from 'lucide-react';
@@ -83,7 +84,7 @@ const Products: React.FC = () => {
       result = result.filter(product => product.isLowStock);
     } else if (stockFilter === 'expired') {
       result = result.filter(product =>
-        product.expiryDate && new Date(product.expiryDate) < new Date()
+        product.expirationDate && new Date(product.expirationDate) < new Date()
       );
     }
 
@@ -198,7 +199,7 @@ const Products: React.FC = () => {
           Low Stock: {products.filter(p => p.isLowStock).length}
         </Badge>
         <Badge variant="outline" className="bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100">
-          Expired: {products.filter(p => p.expiryDate && new Date(p.expiryDate) < new Date()).length}
+          Expired: {products.filter(p => p.expirationDate && new Date(p.expirationDate) < new Date()).length}
         </Badge>
       </div>
 
@@ -297,16 +298,16 @@ const Products: React.FC = () => {
                 >
                   <div className="col-span-5 font-medium">
                     {product.name}
-                    {product.expiryDate && new Date(product.expiryDate) < new Date() && (
+                    {product.expirationDate && new Date(product.expirationDate) < new Date() && (
                       <Badge variant="destructive" className="ml-2">Expired</Badge>
                     )}
                   </div>
                   <div className="col-span-2 text-center">{product.category}</div>
                   <div className={`col-span-2 text-center font-medium ${product.isLowStock ? 'text-amber-600 dark:text-amber-400' : ''}`}>
-                    {product.currentStock}
+                    {product.quantity}
                   </div>
                   <div className="col-span-2 text-center text-muted-foreground">
-                    {product.minimumStock}
+                    {product.lowStockThreshold}
                   </div>
                   <div className="col-span-1 text-center">
                     <Dialog>
