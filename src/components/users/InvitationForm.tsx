@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -24,6 +24,7 @@ import { Loader2 } from 'lucide-react';
 import { UserRole } from '@/types';
 import { useClinic } from '@/contexts/ClinicContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { isUserClinic } from '@/services/clinicService';
 
 const formSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -53,8 +54,25 @@ const InvitationForm: React.FC<InvitationFormProps> = ({
       role: UserRole.ASSISTANT, // Default role
     }
   });
+
   
-  const isAdmin = user?.role === UserRole.ADMIN;
+  const [isOwner, setIsOwner] = useState(false);
+  
+  const isAdmin = user?.role === UserRole.ADMIN || isOwner;
+
+  useEffect(() => {
+    const checkOwnership = async () => {
+      if (!activeClinic?.id) return;
+      try {
+        const data = await isUserClinic(activeClinic.id);
+        setIsOwner(data);
+      } catch (error) {
+        console.error('Error checking ownership', error);
+      }
+    };
+    checkOwnership();
+  }, [activeClinic]);
+  
   
   const handleSubmit = async (data: FormValues) => {
     if (activeClinic && isAdmin) {

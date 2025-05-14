@@ -76,7 +76,8 @@ const Users: React.FC = () => {
       await createInvitation({
         email: data.email,
         role: data.role,
-        clinicId
+        clinicId,
+        doctorId: user?.id
       });
       toast.success('Invitation sent successfully');
       fetchInvitations();
@@ -236,12 +237,12 @@ const Users: React.FC = () => {
                           <AvatarFallback>{getInitials(member.firstName + ' ' + member.lastName)}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-medium">
-                            {member.firstName} {member.lastName}
+                          <div className="font-medium flex items-center gap-2">
+                            <span>{member.firstName} {member.lastName}</span>
                             {member.id === user?.id && (
-                              <Badge variant="outline" className="ml-2">Owner</Badge>
+                              <Badge variant="outline">Owner</Badge>
                             )}
-                          </p>
+                          </div>
                           <p className="text-sm text-muted-foreground">{member.email}</p>
                         </div>
                       </TableCell>

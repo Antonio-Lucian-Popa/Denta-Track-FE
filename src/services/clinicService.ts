@@ -20,3 +20,13 @@ export const getClinicStaff = async (clinicId: string): Promise<User[]> => {
 export const removeUserFromClinic = async (clinicId: string, userId: string): Promise<void> => {
   return await del(`/clinics/${clinicId}/users/${userId}`);
 };
+
+// Returneaza clinicile la care userul este owner
+export const getMyClinics = async (): Promise<Clinic[]> => {
+  return await get(`/clinics`);
+};
+
+// Check pentur clinica daca apartine ownerului curent
+export const isUserClinic = async (clinicId: string): Promise<boolean> => {
+  return await get(`/clinics/${clinicId}/is-owner`);
+};
