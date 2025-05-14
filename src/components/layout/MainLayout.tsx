@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 
 const MainLayout: React.FC = () => {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, user  } = useAuth();
   const { clinics, activeClinic, hasFetchedClinics, isLoading: clinicLoading } = useClinic();
 
   const navigate = useNavigate();
@@ -21,11 +21,21 @@ const MainLayout: React.FC = () => {
       !authLoading &&
       hasFetchedClinics &&
       clinics.length === 0 &&
-      !activeClinic
+      !activeClinic &&
+      user?.role !== 'ASSISTANT' // 👈 doar dacă nu e assistant
     ) {
       navigate('/create-clinic', { replace: true });
     }
-  }, [clinicLoading, authLoading, hasFetchedClinics, clinics, activeClinic, navigate]);
+  }, [
+    clinicLoading,
+    authLoading,
+    hasFetchedClinics,
+    clinics,
+    activeClinic,
+    user?.role, // 👈 adăugat în dependencies
+    navigate
+  ]);
+  
   
 
   
