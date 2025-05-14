@@ -106,7 +106,19 @@ const AuthForm: React.FC = () => {
         invitationToken: invitationToken || undefined,
       };
       await register(registerData);
-      navigate('/dashboard');
+
+      // 🔁 Resetăm complet formularul
+      registerForm.reset({
+        firstName: '',
+        lastName: '',
+        email: isInvited ? invitedEmail : '',
+        password: '',
+        role: undefined,
+        clinicId: undefined,
+        doctorId: undefined,
+      });
+
+      setActiveTab("login");
     } catch (error) {
       console.error('Registration failed', error);
     }
@@ -115,8 +127,8 @@ const AuthForm: React.FC = () => {
   const togglePassword = () => setShowPassword(!showPassword);
 
   return (
-    <Tabs 
-      defaultValue={activeTab} 
+    <Tabs
+      value={activeTab}
       onValueChange={setActiveTab}
       className="w-full"
     >
@@ -124,7 +136,7 @@ const AuthForm: React.FC = () => {
         <TabsTrigger value="login" disabled={isInvited}>Sign In</TabsTrigger>
         <TabsTrigger value="register">Sign Up</TabsTrigger>
       </TabsList>
-      
+
       <TabsContent value="login" className="space-y-6">
         <Form {...loginForm}>
           <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
@@ -144,7 +156,7 @@ const AuthForm: React.FC = () => {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={loginForm.control}
               name="password"
@@ -154,11 +166,11 @@ const AuthForm: React.FC = () => {
                   <FormControl>
                     <div className="relative">
                       <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-                      <Input 
-                        type={showPassword ? 'text' : 'password'} 
-                        placeholder="••••••••" 
+                      <Input
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="••••••••"
                         className="pl-10"
-                        {...field} 
+                        {...field}
                       />
                       <Button
                         type="button"
@@ -175,10 +187,10 @@ const AuthForm: React.FC = () => {
                 </FormItem>
               )}
             />
-            
-            <Button 
-              type="submit" 
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90" 
+
+            <Button
+              type="submit"
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
               disabled={loginForm.formState.isSubmitting}
             >
               {loginForm.formState.isSubmitting ? (
@@ -191,7 +203,7 @@ const AuthForm: React.FC = () => {
           </form>
         </Form>
       </TabsContent>
-      
+
       <TabsContent value="register" className="space-y-6">
         <Form {...registerForm}>
           <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
@@ -212,7 +224,7 @@ const AuthForm: React.FC = () => {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={registerForm.control}
                 name="lastName"
@@ -230,7 +242,7 @@ const AuthForm: React.FC = () => {
                 )}
               />
             </div>
-            
+
             <FormField
               control={registerForm.control}
               name="email"
@@ -240,11 +252,11 @@ const AuthForm: React.FC = () => {
                   <FormControl>
                     <div className="relative">
                       <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-                      <Input 
-                        placeholder="your@email.com" 
+                      <Input
+                        placeholder="your@email.com"
                         className="pl-10"
-                        {...field} 
-                        disabled={isInvited} 
+                        {...field}
+                        disabled={isInvited}
                       />
                     </div>
                   </FormControl>
@@ -252,7 +264,7 @@ const AuthForm: React.FC = () => {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={registerForm.control}
               name="password"
@@ -262,11 +274,11 @@ const AuthForm: React.FC = () => {
                   <FormControl>
                     <div className="relative">
                       <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-                      <Input 
-                        type={showPassword ? 'text' : 'password'} 
-                        placeholder="••••••••" 
+                      <Input
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="••••••••"
                         className="pl-10"
-                        {...field} 
+                        {...field}
                       />
                       <Button
                         type="button"
@@ -308,9 +320,9 @@ const AuthForm: React.FC = () => {
                 </FormItem>
               )}
             />
-            
-            <Button 
-              type="submit" 
+
+            <Button
+              type="submit"
               className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
               disabled={registerForm.formState.isSubmitting}
             >

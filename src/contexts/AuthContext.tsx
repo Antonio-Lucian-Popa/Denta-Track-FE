@@ -61,13 +61,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (data: RegisterData) => {
     try {
       setIsLoading(true);
-      const response = await registerUser(data);
-      localStorage.setItem('access_token', response.access_token);
-      if (response.refresh_token) {
-        localStorage.setItem('refresh_token', response.refresh_token);
-      }
-      const userData = await getCurrentUser();
-      setUser(userData);
+      await registerUser(data);
+      // localStorage.setItem('access_token', response.access_token);
+      // if (response.refresh_token) {
+      //   localStorage.setItem('refresh_token', response.refresh_token);
+      // }
+      // const userData = await getCurrentUser();
+      // setUser(userData);
     } catch (error) {
       console.error('Registration failed', error);
       throw error;
