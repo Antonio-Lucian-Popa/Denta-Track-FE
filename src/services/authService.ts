@@ -9,6 +9,10 @@ export const registerUser = async (data: RegisterData): Promise<AuthResponse> =>
   return await post<AuthResponse>('/users/register', data);
 };
 
+export const registerWithInvite = async (data: RegisterData, inviteToken: string): Promise<AuthResponse> => {
+  return await post<AuthResponse>(`/users/register/invite?token=${inviteToken}`, data);
+};
+
 export const getCurrentUser = async (): Promise<User> => {
   return await get<User>('/users/me');
 };

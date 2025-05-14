@@ -51,6 +51,7 @@ const AuthForm: React.FC = () => {
       const checkInvitation = async () => {
         try {
           const { used, employeeEmail, role, clinicId, doctorId } = await validateInvitation(invitationToken); 
+          console.log("ClinicId: ", clinicId)
           if (!used) {
             setIsInvited(true);
             setInvitedEmail(employeeEmail);
@@ -114,7 +115,7 @@ const AuthForm: React.FC = () => {
         clinicId: registerForm.getValues("clinicId"),
         doctorId: registerForm.getValues("doctorId"),
       };
-      await register(registerData);
+      await register(registerData, invitationToken || undefined);
 
       // 🔁 Resetăm complet formularul
       registerForm.reset({

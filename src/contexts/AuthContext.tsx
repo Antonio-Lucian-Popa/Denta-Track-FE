@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '@/types';
-import { loginUser, registerUser, getCurrentUser } from '@/services/authService';
+import { loginUser, registerUser, getCurrentUser, registerWithInvite } from '@/services/authService';
 import { LoginCredentials, RegisterData } from '@/types';
 
 interface AuthContextType {
@@ -8,7 +8,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
-  register: (data: RegisterData) => Promise<void>;
+  register: (data: RegisterData, invitationToken?: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -58,10 +58,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const register = async (data: RegisterData) => {
+  const register = async (data: RegisterData, inviteToken?: string) => {
     try {
       setIsLoading(true);
-      await registerUser(data);
+      if(data.clinicId && data.doctorId && inviteToken) {
+        await registerWithInvite(data, inviteToken);
+      } else {
+        await registerUser(data);
+      }
       // localStorage.setItem('access_token', response.access_token);
       // if (response.refresh_token) {
       //   localStorage.setItem('refresh_token', response.refresh_token);
