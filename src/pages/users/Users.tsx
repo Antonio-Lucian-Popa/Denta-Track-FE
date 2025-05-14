@@ -1,25 +1,26 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { 
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -35,6 +36,7 @@ import { toast } from 'sonner';
 import { createInvitation, getClinicInvitations } from '@/services/userService';
 import { UserRole, Invitation } from '@/types';
 import { format, isPast } from 'date-fns';
+import { getClinicStaff, removeUserFromClinic } from '@/services/clinicService';
 
 const Users: React.FC = () => {
   const { clinicId } = useParams<{ clinicId: string }>();
@@ -43,7 +45,7 @@ const Users: React.FC = () => {
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Fetch invitations
   const fetchInvitations = async () => {
     if (clinicId && activeClinic?.id === clinicId) {
@@ -59,15 +61,16 @@ const Users: React.FC = () => {
       }
     }
   };
-  
+
   useEffect(() => {
     fetchInvitations();
+    fetchStaff();
   }, [clinicId, activeClinic]);
-  
+
   // Handle create invitation
   const handleCreateInvitation = async (data: { email: string, role: UserRole }) => {
     if (!clinicId) return;
-    
+
     try {
       setIsSubmitting(true);
       await createInvitation({
@@ -84,7 +87,7 @@ const Users: React.FC = () => {
       setIsSubmitting(false);
     }
   };
-  
+
   // Get initials
   const getInitials = (name: string) => {
     return name
@@ -94,53 +97,80 @@ const Users: React.FC = () => {
       .toUpperCase()
       .substring(0, 2);
   };
-  
+
   // Copy invitation link
   const copyInvitationLink = (token: string) => {
     const link = `${window.location.origin}/login?token=${token}`;
     navigator.clipboard.writeText(link);
     toast.success('Invitation link copied to clipboard');
   };
-  
+
   // Mock team members data (in a real app, this would come from an API)
-  const teamMembers = [
-    {
-      id: '1',
-      name: user?.name || 'Admin User',
-      email: user?.email || 'admin@example.com',
-      role: user?.role || UserRole.ADMIN,
-      joinedAt: new Date().toISOString(),
-      isOwner: true,
-    },
-    {
-      id: '2',
-      name: 'Dr. Maria Johnson',
-      email: 'maria@example.com',
-      role: UserRole.DOCTOR,
-      joinedAt: '2025-01-15T10:00:00Z',
-      isOwner: false,
-    },
-    {
-      id: '3',
-      name: 'Alex Brown',
-      email: 'alex@example.com',
-      role: UserRole.ASSISTANT,
-      joinedAt: '2025-02-20T14:30:00Z',
-      isOwner: false,
-    },
-  ];
-  
+  // const teamMembers = [
+  //   {
+  //     id: '1',
+  //     name: user?.name || 'Admin User',
+  //     email: user?.email || 'admin@example.com',
+  //     role: user?.role || UserRole.ADMIN,
+  //     joinedAt: new Date().toISOString(),
+  //     isOwner: true,
+  //   },
+  //   {
+  //     id: '2',
+  //     name: 'Dr. Maria Johnson',
+  //     email: 'maria@example.com',
+  //     role: UserRole.DOCTOR,
+  //     joinedAt: '2025-01-15T10:00:00Z',
+  //     isOwner: false,
+  //   },
+  //   {
+  //     id: '3',
+  //     name: 'Alex Brown',
+  //     email: 'alex@example.com',
+  //     role: UserRole.ASSISTANT,
+  //     joinedAt: '2025-02-20T14:30:00Z',
+  //     isOwner: false,
+  //   },
+  // ];
+
+  const [teamMembers, setTeamMembers] = useState<User[]>([]);
+
+
   const roleColors = {
     [UserRole.ADMIN]: 'bg-violet-100 text-violet-800 dark:bg-violet-800 dark:text-violet-100',
     [UserRole.DOCTOR]: 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100',
     [UserRole.ASSISTANT]: 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100',
   };
+
+  const fetchStaff = async () => {
+    if (!clinicId) return;
+
+    try {
+      const data = await getClinicStaff(clinicId);
+      setTeamMembers(data);
+    } catch (error) {
+      toast.error("Failed to load clinic staff");
+    }
+  };
+
+  const handleRemove = async (userId: string) => {
+    if (!clinicId) return;
+    try {
+      await removeUserFromClinic(clinicId, userId);
+      toast.success("User removed successfully");
+      fetchStaff(); // Refetch users
+    } catch (error) {
+      console.error("Failed to remove user", error);
+      toast.error("Failed to remove user");
+    }
+  };
   
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <h1 className="text-2xl font-bold">Clinic Users</h1>
-        
+
         <Dialog>
           <DialogTrigger asChild>
             <Button>
@@ -156,21 +186,21 @@ const Users: React.FC = () => {
               </DialogDescription>
             </DialogHeader>
             <div className="py-4">
-              <InvitationForm 
-                onSubmit={handleCreateInvitation} 
+              <InvitationForm
+                onSubmit={handleCreateInvitation}
                 isSubmitting={isSubmitting}
               />
             </div>
           </DialogContent>
         </Dialog>
       </div>
-      
+
       <Tabs defaultValue="team">
         <TabsList>
           <TabsTrigger value="team">Team Members</TabsTrigger>
           <TabsTrigger value="invitations">Invitations</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="team" className="mt-6">
           <Card>
             <CardHeader>
@@ -194,49 +224,41 @@ const Users: React.FC = () => {
                     <TableRow key={member.id}>
                       <TableCell className="flex items-center space-x-3">
                         <Avatar>
-                          <AvatarFallback>
-                            {getInitials(member.name)}
-                          </AvatarFallback>
+                          <AvatarFallback>{getInitials(member.firstName + ' ' + member.lastName)}</AvatarFallback>
                         </Avatar>
                         <div>
                           <p className="font-medium">
-                            {member.name}
-                            {member.isOwner && (
-                              <Badge variant="outline" className="ml-2">
-                                Owner
-                              </Badge>
+                            {member.firstName} {member.lastName}
+                            {member.id === user?.id && (
+                              <Badge variant="outline" className="ml-2">Owner</Badge>
                             )}
                           </p>
-                          <p className="text-sm text-muted-foreground">
-                            {member.email}
-                          </p>
+                          <p className="text-sm text-muted-foreground">{member.email}</p>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge className={roleColors[member.role]}>
-                          {member.role}
-                        </Badge>
+                        <Badge className={roleColors[member.role]}>{member.role}</Badge>
                       </TableCell>
-                      <TableCell>
-                        {format(new Date(member.joinedAt), 'MMM d, yyyy')}
-                      </TableCell>
+                      <TableCell>-</TableCell>
                       <TableCell className="text-right">
                         <Button
                           variant="ghost"
                           size="sm"
-                          disabled={member.isOwner}
+                          onClick={() => handleRemove(member.id)}
+                          disabled={member.id === user?.id}
                         >
-                          Manage
+                          Remove
                         </Button>
                       </TableCell>
                     </TableRow>
                   ))}
+
                 </TableBody>
               </Table>
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="invitations" className="mt-6">
           <Card>
             <CardHeader>
@@ -277,7 +299,7 @@ const Users: React.FC = () => {
                   <TableBody>
                     {invitations.map((invitation) => {
                       const isExpired = isPast(new Date(invitation.expires));
-                      
+
                       return (
                         <TableRow key={invitation.id}>
                           <TableCell className="font-medium">
