@@ -141,6 +141,7 @@ const Users: React.FC = () => {
 
 
   const roleColors = {
+    [UserRole.OWNER]: 'bg-violet-100 text-violet-800 dark:bg-violet-800 dark:text-violet-100 hover:text-white cursor-pointer',
     [UserRole.ADMIN]: 'bg-violet-100 text-violet-800 dark:bg-violet-800 dark:text-violet-100 hover:text-white cursor-pointer',
     [UserRole.DOCTOR]: 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100 hover:text-white cursor-pointer',
     [UserRole.ASSISTANT]: 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100 hover:text-white cursor-pointer',
@@ -249,7 +250,11 @@ const Users: React.FC = () => {
                       <TableCell>
                         <Badge className={roleColors[member.role]}>{member.role}</Badge>
                       </TableCell>
-                      <TableCell>-</TableCell>
+                      <TableCell>
+                        <div className="font-medium flex items-center gap-2">
+                          {format(new Date(member.createdAt), 'MMM d, yyyy')}
+                        </div>
+                      </TableCell>
                       <TableCell className="text-right">
                         <Button
                           variant="destructive"

@@ -38,6 +38,7 @@ export interface User {
   firstName: string;
   lastName: string;
   role: UserRole;
+  createdAt: string; // ISO string din LocalDateTime
 }
 
 // Clinic Types
