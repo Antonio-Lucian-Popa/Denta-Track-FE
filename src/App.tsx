@@ -12,6 +12,7 @@ import Products from '@/pages/products/Products';
 import Appointments from '@/pages/appointments/Appointments';
 import InventoryLogs from '@/pages/logs/InventoryLogs';
 import Users from '@/pages/users/Users';
+import Settings from './pages/settings/Settings';
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
                 <Route path="clinic/:clinicId/appointments" element={<Appointments />} />
                 <Route path="clinic/:clinicId/logs" element={<InventoryLogs />} />
                 <Route path="clinic/:clinicId/users" element={<Users />} />
+                <Route path="settings" element={<Settings />} />
                 
                 {/* Add more routes here */}
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />

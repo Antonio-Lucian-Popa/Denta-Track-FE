@@ -80,7 +80,7 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'desktop' }) => {
     {
       icon: <Settings className="h-5 w-5" />,
       label: 'Settings',
-      to: `/clinic/${clinicId}/settings`,
+      to: `/settings`,
       active: location.pathname.includes('/settings'),
     },
   ];
