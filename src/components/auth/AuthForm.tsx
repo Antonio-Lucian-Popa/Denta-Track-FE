@@ -320,6 +320,7 @@ const AuthForm: React.FC = () => {
                           <SelectValue placeholder="Select your role" />
                         </SelectTrigger>
                         <SelectContent>
+                        <SelectItem value={UserRole.OWNER}>Owner</SelectItem>
                           <SelectItem value={UserRole.DOCTOR}>Doctor</SelectItem>
                           <SelectItem value={UserRole.ASSISTANT}>Assistant</SelectItem>
                         </SelectContent>

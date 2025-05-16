@@ -27,6 +27,7 @@ export interface TokenResponse {
 
 export enum UserRole {
   ADMIN = 'ADMIN',
+  OWNER = 'OWNER',
   DOCTOR = 'DOCTOR',
   ASSISTANT = 'ASSISTANT'
 }

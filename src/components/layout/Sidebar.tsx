@@ -60,12 +60,14 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'desktop' }) => {
       to: `/clinic/${clinicId}/appointments`,
       active: location.pathname.includes('/appointments'),
     },
-    {
-      icon: <ClipboardList className="h-5 w-5" />,
-      label: 'Inventory Logs',
-      to: `/clinic/${clinicId}/logs`,
-      active: location.pathname.includes('/logs'),
-    },
+    ...(user?.role !== 'ASSISTANT'
+      ? [{
+        icon: <ClipboardList className="h-5 w-5" />,
+        label: 'Inventory Logs',
+        to: `/clinic/${clinicId}/logs`,
+        active: location.pathname.includes('/logs'),
+      }]
+      : []),
     // ✅ Include doar pentru non-Assistants:
     ...(user?.role !== 'ASSISTANT'
       ? [{
