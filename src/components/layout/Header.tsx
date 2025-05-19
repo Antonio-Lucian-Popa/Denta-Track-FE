@@ -25,6 +25,8 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import Sidebar from './Sidebar';
 import { ScrollArea } from '@radix-ui/react-scroll-area';
 import { format } from 'date-fns';
+import { useNotificationsWS } from '@/hooks/useNotificationsWS';
+import { Notification } from '../../types/notification';
 
 const mockNotifications = [
   {
@@ -57,7 +59,8 @@ const Header: React.FC = () => {
   const { user, logout } = useAuth();
   const { activeClinic, clinics, setActiveClinic } = useClinic();
   const navigate = useNavigate();
-  const [notifications, setNotifications] = useState(mockNotifications);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
   
   const handleLogout = () => {
     logout();
@@ -73,17 +76,25 @@ const Header: React.FC = () => {
       .substring(0, 2);
   };
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  useNotificationsWS(activeClinic?.id, (notification: Notification) => {
+    setNotifications(prev => [
+      { ...notification, id: crypto.randomUUID(), read: false },
+      ...prev
+    ]);
+  });
+  
 
-  const markAsRead = (id: string) => {
-    setNotifications(notifications.map(n => 
-      n.id === id ? { ...n, read: true } : n
-    ));
-  };
+  // const unreadCount = notifications.filter(n => !n.read).length;
 
-  const markAllAsRead = () => {
-    setNotifications(notifications.map(n => ({ ...n, read: true })));
-  };
+  // const markAsRead = (id: string) => {
+  //   setNotifications(notifications.map(n => 
+  //     n.id === id ? { ...n, read: true } : n
+  //   ));
+  // };
+
+  // const markAllAsRead = () => {
+  //   setNotifications(notifications.map(n => ({ ...n, read: true })));
+  // };
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
