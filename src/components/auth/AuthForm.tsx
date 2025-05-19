@@ -65,7 +65,6 @@ const AuthForm: React.FC = () => {
         } catch (error) {
           console.error('Invalid invitation token', error);
           toast.error('Invitation is no longer valid or has expired.');
-          setActiveTab('login');
         }
       };
       checkInvitation();
