@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import {
     Card,
-    CardContent,
+CardContent,
     CardDescription,
     CardHeader,
     CardTitle

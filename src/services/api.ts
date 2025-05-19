@@ -16,7 +16,7 @@ const api = axios.create({
 // Request interceptor for adding the auth token
 api.interceptors.request.use(
   (config) => {
-    if (!config.url?.includes('/users/refresh') && !config.url?.includes('/users/register') && !config.url?.includes('/users/login')) {
+    if (!config.url?.includes('/users/refresh') && !config.url?.includes('/users/register') && !config.url?.includes('/users/login') && !config.url?.includes('/users/register/invite')) {
       const token = localStorage.getItem('access_token');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
@@ -32,6 +32,13 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    // Tratare 409 - Conflict (de exemplu: cont deja existent)
+    if (error.response?.status === 409) {
+      const msg = error.response?.data?.message || 'Un cont cu acest email există deja.';
+      toast.error(msg);
+      return Promise.reject(error);
+    }
 
     // Evită bucla infinită
     if (originalRequest.url.includes('/refresh') || originalRequest.url.includes('/users/refresh')) {
