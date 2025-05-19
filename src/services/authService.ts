@@ -42,6 +42,6 @@ export const refreshToken = async (): Promise<TokenResponse | null> => {
     return tokens;
   } catch (error) {
     console.error('Token refresh error:', error);
-    return null;
+    throw error;
   }
 };

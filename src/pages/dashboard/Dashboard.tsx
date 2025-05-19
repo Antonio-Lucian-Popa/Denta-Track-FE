@@ -178,7 +178,7 @@ const Dashboard: React.FC = () => {
               <PieChart>
                 <Pie data={appointmentStatusData} dataKey="value" nameKey="name" outerRadius={80}>
                   {appointmentStatusData.map((entry, index) => (
-                    <Cell key={index} fill={`var(--color-${entry.name})`} />
+                    <Cell key={index} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip />
