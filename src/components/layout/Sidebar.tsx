@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, CalendarClock, ClipboardList, Users, Settings, Bluetooth as Tooth, Hospital } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, CalendarClock, ClipboardList, Users, Settings, Hospital } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useClinic } from '@/contexts/ClinicContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -39,7 +39,7 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'desktop' }) => {
   const { user } = useAuth();
 
   const clinicId = activeClinic?.id;
-  const isActive = (path: string) => location.pathname.includes(path);
+  //const isActive = (path: string) => location.pathname.includes(path);
 
   const sidebarItems = [
     {

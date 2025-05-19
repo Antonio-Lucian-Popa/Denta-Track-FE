@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ChevronDown,
@@ -93,9 +93,9 @@ const Header: React.FC = () => {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2">
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback>{user?.name ? getInitials(user.name) : 'U'}</AvatarFallback>
+                  <AvatarFallback>{user?.firstName ? getInitials(user.firstName) : 'U'}</AvatarFallback>
                 </Avatar>
-                <span className="hidden font-medium md:inline-block">{user?.name}</span>
+                <span className="hidden font-medium md:inline-block">{user?.firstName}</span>
                 <ChevronDown className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>

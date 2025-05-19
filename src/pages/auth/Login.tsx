@@ -1,5 +1,5 @@
 import React from 'react';
-import { Hospital, UserCircle } from 'lucide-react';
+import { Hospital } from 'lucide-react';
 import AuthForm from '@/components/auth/AuthForm';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';

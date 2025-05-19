@@ -1,5 +1,4 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -63,7 +62,7 @@ type ClinicFormValues = z.infer<typeof clinicFormSchema>;
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 const Settings: React.FC = () => {
-    const { clinicId } = useParams<{ clinicId: string }>();
+   // const { clinicId } = useParams<{ clinicId: string }>();
     const { activeClinic } = useClinic();
     const { user } = useAuth();
     const { theme, setTheme } = useTheme();
