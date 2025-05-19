@@ -73,7 +73,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     }
   });
   
-  const isDoctorOrAdmin = user?.role === UserRole.DOCTOR || user?.role === UserRole.ADMIN;
+  const isDoctorOrAdmin = user?.role === UserRole.DOCTOR || user?.role === UserRole.ADMIN || user?.role === UserRole.OWNER;
   
   const handleSubmit = async (data: FormValues) => {
     if (activeClinic && isDoctorOrAdmin) {
