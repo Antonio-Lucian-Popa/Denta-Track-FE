@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 import {
   Calendar,
   Package2,
@@ -21,7 +20,7 @@ import { Chart } from '@/components/ui/chart';
 import { Bar, BarChart, Cell, Pie, PieChart, Tooltip, XAxis, YAxis } from 'recharts';
 
 const Dashboard: React.FC = () => {
-  const { clinicId } = useParams<{ clinicId: string }>();
+ // const { clinicId } = useParams<{ clinicId: string }>();
   const { activeClinic } = useClinic();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [lowStockProducts, setLowStockProducts] = useState<Product[]>([]);
@@ -29,41 +28,38 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (clinicId && activeClinic?.id === clinicId) {
-      const fetchDashboardData = async () => {
-        try {
-          setLoading(true);
-          const [statsData, productsData, appointmentsData] = await Promise.all([
-            getDashboardStats(clinicId),
-            getLowStockProducts(clinicId),
-            getClinicAppointments(clinicId)
-          ]);
-
-          setStats(statsData);
-          setLowStockProducts(productsData);
-
-          const today = new Date();
-          const upcoming = appointmentsData
-            .filter(a => a.status === AppointmentStatus.SCHEDULED)
-            .filter(a => new Date(a.dateTime) >= today)
-            .sort((a, b) =>
-              new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime()
-            )
-            .slice(0, 5);
-
-          setUpcomingAppointments(upcoming);
-        } catch (error) {
-          console.error('Error fetching dashboard data', error);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchDashboardData();
-    } else {
-      setLoading(false);
-    }
-  }, [clinicId, activeClinic]);
+    if (!activeClinic?.id) return;
+  
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        const [statsData, productsData, appointmentsData] = await Promise.all([
+          getDashboardStats(activeClinic.id),
+          getLowStockProducts(activeClinic.id),
+          getClinicAppointments(activeClinic.id)
+        ]);
+  
+        setStats(statsData);
+        setLowStockProducts(productsData);
+  
+        const today = new Date();
+        const upcoming = appointmentsData
+          .filter(a => a.status === AppointmentStatus.SCHEDULED)
+          .filter(a => new Date(a.dateTime) >= today)
+          .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime())
+          .slice(0, 5);
+  
+        setUpcomingAppointments(upcoming);
+      } catch (error) {
+        console.error('Error fetching dashboard data', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchDashboardData();
+  }, [activeClinic?.id]);
+  
 
   const appointmentStatusData = [
     { name: 'Completed', value: stats?.completedAppointments || 0, color: 'chart.1' },

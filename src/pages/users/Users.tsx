@@ -48,35 +48,36 @@ const Users: React.FC = () => {
 
   // Fetch invitations
   const fetchInvitations = async () => {
-    if (clinicId && activeClinic?.id === clinicId) {
-      try {
-        setIsLoading(true);
-        const data = await getClinicInvitations(clinicId);
-        setInvitations(data);
-      } catch (error) {
-        console.error('Failed to fetch invitations', error);
-        toast.error('Failed to load invitations');
-      } finally {
-        setIsLoading(false);
-      }
+    if (!activeClinic?.id) return;
+    try {
+      setIsLoading(true);
+      const data = await getClinicInvitations(activeClinic.id);
+      setInvitations(data);
+    } catch (error) {
+      console.error('Failed to fetch invitations', error);
+      toast.error('Failed to load invitations');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
+    if (!activeClinic?.id) return;
+  
     fetchInvitations();
     fetchStaff();
-  }, [clinicId, activeClinic]);
+  }, [activeClinic?.id]);
 
   // Handle create invitation
   const handleCreateInvitation = async (data: { email: string, role: UserRole }) => {
-    if (!clinicId) return;
-
+    if (!activeClinic?.id) return;
+  
     try {
       setIsSubmitting(true);
       await createInvitation({
         employeeEmail: data.email,
         role: data.role,
-        clinicId,
+        clinicId: activeClinic.id,
         doctorId: user?.id
       });
       toast.success('Invitation sent successfully');
@@ -148,10 +149,9 @@ const Users: React.FC = () => {
   };
 
   const fetchStaff = async () => {
-    if (!clinicId) return;
-
+    if (!activeClinic?.id) return;
     try {
-      const data = await getClinicStaff(clinicId);
+      const data = await getClinicStaff(activeClinic.id);
       setTeamMembers(data);
     } catch (error) {
       toast.error("Failed to load clinic staff");
