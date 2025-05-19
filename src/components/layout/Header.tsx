@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
+import {
   ChevronDown,
   LogOut,
   Settings,
@@ -13,7 +13,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useClinic } from '@/contexts/ClinicContext';
 import { Button } from '@/components/ui/button';
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -25,35 +25,17 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import Sidebar from './Sidebar';
 import { ScrollArea } from '@radix-ui/react-scroll-area';
 import { format } from 'date-fns';
-import { useNotificationsWS } from '@/hooks/useNotificationsWS';
-import { Notification } from '../../types/notification';
+import { useNotificationsWS } from '@/services/useNotificationsWS';
 
-const mockNotifications = [
-  {
-    id: '1',
-    title: 'Low Stock Alert',
-    message: 'Lidocain 2% is running low on stock',
-    timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-    type: 'warning',
-    read: false
-  },
-  {
-    id: '2',
-    title: 'Appointment Reminder',
-    message: 'Upcoming appointment with Maria Dinu at 2:30 PM',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
-    type: 'info',
-    read: false
-  },
-  {
-    id: '3',
-    title: 'Product Expiring Soon',
-    message: 'Mănuși nitril will expire in 30 days',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-    type: 'warning',
-    read: false
-  }
-];
+
+export type Notification = {
+  id: string;
+  title: string;
+  message: string;
+  type: string;
+  timestamp: Date;
+  read: boolean;
+};
 
 const Header: React.FC = () => {
   const { user, logout } = useAuth();
@@ -61,12 +43,11 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
-  
+
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -76,25 +57,29 @@ const Header: React.FC = () => {
       .substring(0, 2);
   };
 
-  useNotificationsWS(activeClinic?.id, (notification: Notification) => {
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  const markAsRead = (id: string) => {
+    setNotifications(notifications.map(n =>
+      n.id === id ? { ...n, read: true } : n
+    ));
+  };
+
+  const markAllAsRead = () => {
+    setNotifications(notifications.map(n => ({ ...n, read: true })));
+  };
+
+  useNotificationsWS(activeClinic?.id || '', (notification: Notification) => {
     setNotifications(prev => [
-      { ...notification, id: crypto.randomUUID(), read: false },
+      {
+        ...notification,
+        id: crypto.randomUUID(),
+        timestamp: new Date(notification.timestamp),
+        read: false
+      },
       ...prev
     ]);
   });
-  
-
-  // const unreadCount = notifications.filter(n => !n.read).length;
-
-  // const markAsRead = (id: string) => {
-  //   setNotifications(notifications.map(n => 
-  //     n.id === id ? { ...n, read: true } : n
-  //   ));
-  // };
-
-  // const markAllAsRead = () => {
-  //   setNotifications(notifications.map(n => ({ ...n, read: true })));
-  // };
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -135,7 +120,7 @@ const Header: React.FC = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-64">
             {clinics.map(clinic => (
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 key={clinic.id}
                 onClick={() => setActiveClinic(clinic)}
                 className={`${activeClinic?.id === clinic.id ? 'bg-accent' : ''}`}
@@ -148,7 +133,7 @@ const Header: React.FC = () => {
 
         {/* Right side: notifications, user menu */}
         <div className="flex items-center space-x-2">
-        <DropdownMenu>
+          <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="relative">
                 <BellRing className="h-5 w-5" />
@@ -163,8 +148,8 @@ const Header: React.FC = () => {
               <div className="flex items-center justify-between px-4 py-2">
                 <h3 className="font-medium">Notifications</h3>
                 {unreadCount > 0 && (
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     size="sm"
                     onClick={markAllAsRead}
                     className="text-xs"
