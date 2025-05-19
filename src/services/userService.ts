@@ -1,4 +1,4 @@
-import { post, get } from './api';
+import { post, get, del } from './api';
 import { Invitation, InvitationRequest } from '@/types';
 
 export const createInvitation = async (data: InvitationRequest): Promise<Invitation> => {
@@ -7,4 +7,8 @@ export const createInvitation = async (data: InvitationRequest): Promise<Invitat
 
 export const getClinicInvitations = async (clinicId: string): Promise<Invitation[]> => {
   return await get<Invitation[]>(`/invitations/clinic/${clinicId}`);
+};
+
+export const deleteInvitation = async (invitationId: string): Promise<void> => {
+  return await del<void>(`/invitations/${invitationId}`);
 };

@@ -25,6 +25,7 @@ import { UserRole } from '@/types';
 import { useClinic } from '@/contexts/ClinicContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { isUserClinic } from '@/services/clinicService';
+import { toast } from 'sonner';
 
 const formSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -76,8 +77,14 @@ const InvitationForm: React.FC<InvitationFormProps> = ({
   
   const handleSubmit = async (data: FormValues) => {
     if (activeClinic && isAdmin) {
-      await onSubmit(data);
-      form.reset();
+      try {
+        await onSubmit(data);
+        toast.success('Invitation sent successfully');
+        form.reset();
+      } catch (error) {
+        console.error('Invitation error:', error);
+        toast.error('Failed to send invitation. Please try again.');
+      }
     }
   };
 

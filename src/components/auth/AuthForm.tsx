@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useAuth } from '@/contexts/AuthContext';
 import { validateInvitation } from '@/services/authService';
 import { UserRole } from '@/types';
+import { toast } from 'sonner';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -63,6 +64,8 @@ const AuthForm: React.FC = () => {
           }
         } catch (error) {
           console.error('Invalid invitation token', error);
+          toast.error('Invitation is no longer valid or has expired.');
+          setActiveTab('login');
         }
       };
       checkInvitation();

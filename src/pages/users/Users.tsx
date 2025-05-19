@@ -29,11 +29,11 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import InvitationForm from '@/components/users/InvitationForm';
-import { Copy, UserPlus, Loader2, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Copy, UserPlus, Loader2, Clock, CheckCircle, XCircle, X } from 'lucide-react';
 import { useClinic } from '@/contexts/ClinicContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { createInvitation, getClinicInvitations } from '@/services/userService';
+import { createInvitation, deleteInvitation, getClinicInvitations } from '@/services/userService';
 import { UserRole, Invitation, User } from '@/types';
 import { format, isPast } from 'date-fns';
 import { getClinicStaff, removeUserFromClinic } from '@/services/clinicService';
@@ -63,7 +63,7 @@ const Users: React.FC = () => {
 
   useEffect(() => {
     if (!activeClinic?.id) return;
-  
+
     fetchInvitations();
     fetchStaff();
   }, [activeClinic?.id]);
@@ -71,7 +71,7 @@ const Users: React.FC = () => {
   // Handle create invitation
   const handleCreateInvitation = async (data: { email: string, role: UserRole }) => {
     if (!activeClinic?.id) return;
-  
+
     try {
       setIsSubmitting(true);
       await createInvitation({
@@ -107,37 +107,11 @@ const Users: React.FC = () => {
     toast.success('Invitation link copied to clipboard');
   };
 
-  // Mock team members data (in a real app, this would come from an API)
-  // const teamMembers = [
-  //   {
-  //     id: '1',
-  //     name: user?.name || 'Admin User',
-  //     email: user?.email || 'admin@example.com',
-  //     role: user?.role || UserRole.ADMIN,
-  //     joinedAt: new Date().toISOString(),
-  //     isOwner: true,
-  //   },
-  //   {
-  //     id: '2',
-  //     name: 'Dr. Maria Johnson',
-  //     email: 'maria@example.com',
-  //     role: UserRole.DOCTOR,
-  //     joinedAt: '2025-01-15T10:00:00Z',
-  //     isOwner: false,
-  //   },
-  //   {
-  //     id: '3',
-  //     name: 'Alex Brown',
-  //     email: 'alex@example.com',
-  //     role: UserRole.ASSISTANT,
-  //     joinedAt: '2025-02-20T14:30:00Z',
-  //     isOwner: false,
-  //   },
-  // ];
-
   const [teamMembers, setTeamMembers] = useState<User[]>([]);
   const [userToRemove, setUserToRemove] = useState<string | null>(null);
   const [isRemoving, setIsRemoving] = useState(false);
+  const [invitationToDelete, setInvitationToDelete] = useState<string | null>(null);
+  const [isDeletingInvitation, setIsDeletingInvitation] = useState(false);
 
 
 
@@ -175,6 +149,17 @@ const Users: React.FC = () => {
     }
   };
 
+
+  const handleDeleteInvitation = async (id: string) => {
+    try {
+      await deleteInvitation(id);
+      toast.success('Invitation deleted');
+      fetchInvitations(); // reîncarcă lista
+    } catch (error) {
+      toast.error('Failed to delete invitation');
+      console.error(error);
+    }
+  };
 
 
   return (
@@ -373,6 +358,16 @@ const Users: React.FC = () => {
                               <Copy className="mr-2 h-3 w-3" />
                               Copy Link
                             </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-destructive"
+                              onClick={() => setInvitationToDelete(invitation.id)}
+                            >
+                              <X className="mr-2 h-3 w-3" />
+                              Delete
+                            </Button>
+
                           </TableCell>
                         </TableRow>
                       );
@@ -384,6 +379,50 @@ const Users: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={!!invitationToDelete} onOpenChange={(open) => !open && setInvitationToDelete(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Invitation</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this invitation? The link will no longer be valid.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 pt-4">
+            <Button variant="ghost" onClick={() => setInvitationToDelete(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                if (!invitationToDelete) return;
+                try {
+                  setIsDeletingInvitation(true);
+                  await deleteInvitation(invitationToDelete);
+                  toast.success('Invitation deleted');
+                  fetchInvitations();
+                  setInvitationToDelete(null);
+                } catch (err) {
+                  toast.error('Failed to delete invitation');
+                } finally {
+                  setIsDeletingInvitation(false);
+                }
+              }}
+              disabled={isDeletingInvitation}
+            >
+              {isDeletingInvitation ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete'
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
 
       <Dialog open={!!userToRemove} onOpenChange={(open) => !open && setUserToRemove(null)}>
         <DialogContent>
