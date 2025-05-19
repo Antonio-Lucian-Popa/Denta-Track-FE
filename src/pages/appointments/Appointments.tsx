@@ -36,10 +36,12 @@ import { Appointment, AppointmentStatus } from '@/types';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
+import { useClinic } from '@/contexts/ClinicContext';
 
 const Appointments: React.FC = () => {
   const { clinicId } = useParams<{ clinicId: string }>();
   const { user } = useAuth();
+  const { activeClinic } = useClinic();
 
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [filteredAppointments, setFilteredAppointments] = useState<Appointment[]>([]);
@@ -53,11 +55,11 @@ const Appointments: React.FC = () => {
 
   // Fetch appointments
   const fetchAppointments = async () => {
-    if (!clinicId) return;
+    if (!activeClinic) return;
 
     try {
       setIsLoading(true);
-      const data = await getClinicAppointments(clinicId);
+      const data = await getClinicAppointments(activeClinic.id);
       setAppointments(data);
       setFilteredAppointments(data);
     } catch (error) {
@@ -70,7 +72,7 @@ const Appointments: React.FC = () => {
 
   useEffect(() => {
     fetchAppointments();
-  }, [clinicId]);
+  }, [activeClinic?.id]);
 
   // Apply filters
   useEffect(() => {
@@ -130,7 +132,7 @@ const Appointments: React.FC = () => {
       setIsSubmitting(true);
 
       const appointmentData = {
-        clinicId,
+        clinicId: activeClinic?.id ? activeClinic.id : clinicId,
         dateTime: `${format(data.date, 'yyyy-MM-dd')}T${data.time}`,
         durationMinutes: data.duration,
         patientName: data.patientName,
