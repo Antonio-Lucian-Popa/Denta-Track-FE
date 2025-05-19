@@ -65,15 +65,15 @@ const InventoryLogs: React.FC = () => {
 
   // Fetch logs and products
   const fetchData = async () => {
-    if (!clinicId || !activeClinic) return;
-
+    if (!activeClinic?.id) return;
+  
     try {
       setIsLoading(true);
       const [logsData, productsData] = await Promise.all([
-        getInventoryLogs(clinicId),
-        getClinicProducts(clinicId)
+        getInventoryLogs(activeClinic.id),
+        getClinicProducts(activeClinic.id)
       ]);
-
+  
       setLogs(logsData);
       setProducts(productsData);
       setFilteredLogs(logsData);
@@ -84,10 +84,11 @@ const InventoryLogs: React.FC = () => {
       setIsLoading(false);
     }
   };
-
+  
   useEffect(() => {
     fetchData();
-  }, [clinicId, activeClinic]);
+  }, [activeClinic?.id]);
+  
 
   // Apply filters
   useEffect(() => {
