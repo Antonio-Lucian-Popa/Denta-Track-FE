@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+// import { useParams } from 'react-router-dom';
 import { Plus, Search, Filter, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,7 +29,7 @@ import { Product } from '@/types';
 import { toast } from 'sonner';
 
 const Products: React.FC = () => {
-  const { clinicId } = useParams<{ clinicId: string }>();
+ // const { clinicId } = useParams<{ clinicId: string }>();
   const { activeClinic } = useClinic();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
@@ -42,24 +42,25 @@ const Products: React.FC = () => {
 
   // Fetch products
   const fetchProducts = async () => {
-    if (clinicId && activeClinic?.id === clinicId) {
-      try {
-        setIsLoading(true);
-        const data = await getClinicProducts(clinicId);
-        setProducts(data);
-        setFilteredProducts(data);
-      } catch (error) {
-        console.error('Failed to fetch products', error);
-        toast.error('Failed to load products');
-      } finally {
-        setIsLoading(false);
-      }
+    if (!activeClinic?.id) return;
+  
+    try {
+      setIsLoading(true);
+      const data = await getClinicProducts(activeClinic.id);
+      setProducts(data);
+      setFilteredProducts(data);
+    } catch (error) {
+      console.error('Failed to fetch products', error);
+      toast.error('Failed to load products');
+    } finally {
+      setIsLoading(false);
     }
   };
+  
 
   useEffect(() => {
     fetchProducts();
-  }, [clinicId, activeClinic]);
+  }, [activeClinic?.id]);
 
   // Apply filters
   useEffect(() => {
@@ -96,13 +97,13 @@ const Products: React.FC = () => {
 
   // Handle create product
   const handleCreateProduct = async (data: any) => {
-    if (!clinicId) return;
+    if (!activeClinic?.id) return;
 
     try {
       setIsSubmitting(true);
       await createProduct({
         ...data,
-        clinicId
+        clinicId: activeClinic.id
       });
       toast.success('Product created successfully');
       setShowAddDialog(false);
