@@ -15,8 +15,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bluetooth as Tooth, Loader2 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { Loader2, Hospital } from 'lucide-react';
+// import { useAuth } from '@/contexts/AuthContext';
 import { useClinic } from '@/contexts/ClinicContext';
 import { createClinic } from '@/services/clinicService';
 import { toast } from 'sonner';
@@ -31,7 +31,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 const CreateClinic: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user } = useAuth();
+  //const { user } = useAuth();
   const { refreshClinics } = useClinic();
   const navigate = useNavigate();
   
@@ -63,7 +63,7 @@ const CreateClinic: React.FC = () => {
     <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
       <div className="w-full max-w-md space-y-6">
         <div className="flex flex-col items-center space-y-2 text-center">
-          <Tooth className="h-12 w-12 text-primary" />
+          <Hospital className="h-12 w-12 text-primary" />
           <h1 className="text-3xl font-bold">Create Your Clinic</h1>
           <p className="text-muted-foreground">
             Set up your dental clinic in DentaTrack

@@ -8,7 +8,8 @@ import {
   BellRing,
   X,
   Clock,
-  Check
+  Check,
+  Plus
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useClinic } from '@/contexts/ClinicContext';
@@ -26,6 +27,7 @@ import Sidebar from './Sidebar';
 import { ScrollArea } from '@radix-ui/react-scroll-area';
 import { format } from 'date-fns';
 import { useNotificationsWS } from '@/services/useNotificationsWS';
+import { UserRole } from '@/types';
 
 
 export type Notification = {
@@ -92,6 +94,8 @@ const Header: React.FC = () => {
     }
   };
 
+  const isOwner = user?.role === UserRole.OWNER;
+
   return (
     <header className="border-b border-border bg-card px-4 py-2">
       <div className="flex items-center justify-between">
@@ -128,6 +132,16 @@ const Header: React.FC = () => {
                 <span className="truncate">{clinic.name}</span>
               </DropdownMenuItem>
             ))}
+
+            {isOwner && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/create-clinic')}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  <span>Create New Clinic</span>
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
 
@@ -168,9 +182,8 @@ const Header: React.FC = () => {
                   notifications.map((notification) => (
                     <div
                       key={notification.id}
-                      className={`flex items-start gap-3 px-4 py-2 hover:bg-muted/50 ${
-                        !notification.read ? 'bg-muted/20' : ''
-                      }`}
+                      className={`flex items-start gap-3 px-4 py-2 hover:bg-muted/50 ${!notification.read ? 'bg-muted/20' : ''
+                        }`}
                     >
                       <div className="mt-1">
                         {getNotificationIcon(notification.type)}
