@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserCircle } from 'lucide-react';
+import { Hospital, UserCircle } from 'lucide-react';
 import AuthForm from '@/components/auth/AuthForm';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,7 +19,7 @@ const Login: React.FC = () => {
           <div className="relative">
             <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-primary/50 to-primary opacity-75 blur"></div>
             <div className="relative rounded-full bg-card p-3">
-              <UserCircle className="h-12 w-12 text-primary" />
+              <Hospital className="h-12 w-12 text-primary" />
             </div>
           </div>
           <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-100">

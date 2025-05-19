@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, CalendarClock, ClipboardList, Users, Settings, Bluetooth as Tooth } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, CalendarClock, ClipboardList, Users, Settings, Bluetooth as Tooth, Hospital } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useClinic } from '@/contexts/ClinicContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -93,7 +93,7 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'desktop' }) => {
       {/* Logo */}
       <div className="flex h-14 items-center border-b border-border px-4">
         <Link to="/" className="flex items-center gap-2 font-semibold text-foreground">
-          <Tooth className="h-6 w-6 text-primary" />
+          <Hospital className="h-6 w-6 text-primary" />
           <span className="text-xl font-bold">DentaTrack</span>
         </Link>
       </div>
