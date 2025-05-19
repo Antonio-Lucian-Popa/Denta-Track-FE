@@ -151,3 +151,12 @@ export interface InvitationRequest {
   doctorId?: string;
   employeeEmail: string;
 }
+
+export interface Notification {
+  title: string;
+  message: string;
+  timestamp: Date;
+  type: 'info' | 'warning' | 'error';
+  read: boolean;
+  id: string;
+}
